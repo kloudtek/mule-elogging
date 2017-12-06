@@ -3,13 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>mule-ulogging</artifactId>
-        <groupId>com.kloudtek.mule.ulogging</groupId>
+        <artifactId>mule-elogging</artifactId>
+        <groupId>com.kloudtek.mule.elogging</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>mule-ulogging-log4j2</artifactId>
+    <artifactId>mule-elogging-log4j2</artifactId>
 
     <dependencies>
         <dependency>
@@ -27,6 +27,12 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mule</groupId>
+            <artifactId>mule-core</artifactId>
+            <version>3.9.0</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -70,7 +76,7 @@
                             <relocations>
                                 <relocation>
                                     <pattern>com.fasterxml.jackson</pattern>
-                                    <shadedPattern>com.kloudtek.mule.ulogging.jackson</shadedPattern>
+                                    <shadedPattern>com.kloudtek.mule.elogging.jackson</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>

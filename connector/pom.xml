@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.kloudtek.mule.ulogging</groupId>
-    <artifactId>mule-ulogging-connector</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <groupId>com.kloudtek.mule.elogging</groupId>
+    <artifactId>mule-elogging-connector</artifactId>
+    <version>1.0-SNAPSHOT</version>
     <packaging>mule-module</packaging>
-    <name>Mule ULogging Anypoint Connector</name>
-    <description>Mule ULogging payload logger</description>
+    <name>Mule elogging Anypoint Connector</name>
+    <description>Mule elogging payload logger</description>
     <organization>
         <name>Kloudtek</name>
         <url>http://www.kloudtek.com</url>
@@ -20,13 +20,13 @@
     </developers>
     <issueManagement>
         <system>Github</system>
-        <url>https://github.com/Kloudtek/mule-ulogging/issues</url>
+        <url>https://github.com/Kloudtek/mule-elogging/issues</url>
     </issueManagement>
 
     <scm>
-        <url>scm:git:git@github.com:Kloudtek/mule-ulogging.git</url>
-        <connection>scm:git:git@github.com:Kloudtek/mule-ulogging.git</connection>
-        <developerConnection>scm:git:git@github.com:Kloudtek/mule-ulogging.git</developerConnection>
+        <url>scm:git:git@github.com:Kloudtek/mule-elogging.git</url>
+        <connection>scm:git:git@github.com:Kloudtek/mule-elogging.git</connection>
+        <developerConnection>scm:git:git@github.com:Kloudtek/mule-elogging.git</developerConnection>
     </scm>
 
     <licenses>
@@ -46,6 +46,7 @@
         <category>Community</category>
         <licensePath>LICENSE.md</licensePath>
         <devkit.studio.package.skip>false</devkit.studio.package.skip>
+        <javadoc.opts>-Xdoclint:none</javadoc.opts>
     </properties>
 
     <reporting>
@@ -73,7 +74,7 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.10.3</version>
                 <configuration>
-                    <excludePackageNames>com.kloudtek.mule.ulogging.ulogging.generated.*</excludePackageNames>
+                    <excludePackageNames>com.kloudtek.mule.elogging.generated.*</excludePackageNames>
                 </configuration>
                 <executions>
                     <execution>
@@ -108,9 +109,27 @@
                     <autoReleaseAfterClose>true</autoReleaseAfterClose>
                 </configuration>
             </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <phase>process-sources</phase>
+                        <configuration>
+                            <target>
+                                <replace dir="${project.build.directory}/generated-sources/mule/com/kloudtek/mule/elogging/generated/processors/"
+                                         token="new NestedProcessorChain" value="new com.kloudtek.mule.elogging.PermissiveNestedProcessorChain">
+                                </replace>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
-
 
     <repositories>
         <repository>
@@ -132,6 +151,15 @@
             <layout>default</layout>
         </repository>
     </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.kloudtek.mule.elogging</groupId>
+            <artifactId>mule-elogging-log4j2</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
     <distributionManagement>
         <repository>

@@ -1,9 +1,7 @@
-package com.kloudtek.mule.ulogging.log4j2;
+package com.kloudtek.mule.elogging.log4j2;
 
 import org.apache.logging.log4j.*;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class ULJsonLayoutTest {
     private Logger logger = LogManager.getLogger(ULJsonLayoutTest.class.getName());

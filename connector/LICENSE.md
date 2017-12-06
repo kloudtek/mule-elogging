@@ -470,7 +470,7 @@ EXHIBIT A. Common Public Attribution License Version 1.0.
 "The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/Kloudtek/mule-ulogging. The License is based on the Mozilla Public
+https://github.com/Kloudtek/mule-elogging. The License is based on the Mozilla Public
 License Version 1.1, but Sections 14 and 15 have been added to cover use of
 software over a computer network and provide for limited attribution for the
 Original Developer. In addition, Exhibit A has been modified to be consistent
@@ -493,7 +493,7 @@ EXHIBIT B. Attribution Information
 Attribution Copyright Notice: Copyright (c) 2006-2015 Kloudtek Software Solutions Ltd. All Rights
 Reserved.
 
-Attribution Phrase (not exceeding 10 words): Powered with Kloudtek's mule-ulogging
+Attribution Phrase (not exceeding 10 words): Powered with Kloudtek's mule-elogging
 
 Attribution URL: http://www.kloudtek.com
 

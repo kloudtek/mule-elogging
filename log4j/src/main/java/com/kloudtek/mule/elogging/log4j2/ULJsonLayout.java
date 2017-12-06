@@ -1,4 +1,4 @@
-package com.kloudtek.mule.ulogging.log4j2;
+package com.kloudtek.mule.elogging.log4j2;
 
 import com.fasterxml.jackson.jr.ob.JSON;
 import com.fasterxml.jackson.jr.ob.JSONComposer;
@@ -12,10 +12,11 @@ import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.core.layout.AbstractStringLayout;
 
 import java.io.IOException;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
@@ -38,14 +39,29 @@ public class ULJsonLayout extends AbstractStringLayout {
                     .put("loggerName", event.getLoggerName())
                     .put("loggerFqcn", event.getLoggerFqcn())
                     .put("threadName", event.getThreadName())
-                    .put("level", event.getLevel().name())
-                    .put("message", event.getMessage().getFormattedMessage());
-            if( event.getThrownProxy() != null ) {
-                json.put("stacktrace",event.getThrownProxy().getExtendedStackTraceAsString());
+                    .put("level", event.getLevel().name());
+            if (event.getMessage() instanceof MuleLogMessage) {
+                ((MuleLogMessage) event.getMessage()).toJson(json,"mulemsg");
+            } else if( event.getMessage() instanceof RequestResponseLogMessage ) {
+                ((RequestResponseLogMessage) event.getMessage()).toJson(json);
+            } else {
+                json.put("message", event.getMessage().getFormattedMessage());
             }
-            if( ThreadContext.getImmutableStack() != null ) {
+            if (event.getThrownProxy() != null) {
+                try {
+                    json.put("stacktrace", event.getThrownProxy().getExtendedStackTraceAsString());
+                } catch (Exception e) {
+                    if( event.getThrown() != null ) {
+                        try( StringWriter sw = new StringWriter() ; PrintWriter pw = new PrintWriter(sw) ) {
+                            event.getThrown().printStackTrace(pw);
+                            json.put("stacktrace", sw.toString() );
+                        }
+                    }
+                }
+            }
+            if (ThreadContext.getImmutableStack() != null) {
                 List<String> ndcList = ThreadContext.getImmutableStack().asList();
-                if( ndcList != null && !ndcList.isEmpty() ) {
+                if (ndcList != null && !ndcList.isEmpty()) {
                     ArrayComposer<ObjectComposer<JSONComposer<String>>> ndcArray = json.startArrayField("tcStack");
                     for (String val : ndcList) {
                         ndcArray.add(val);
@@ -53,10 +69,10 @@ public class ULJsonLayout extends AbstractStringLayout {
                     ndcArray.end();
                 }
             }
-            if( ThreadContext.getContext() != null && ! ThreadContext.getContext().isEmpty() ) {
+            if (ThreadContext.getContext() != null && !ThreadContext.getContext().isEmpty()) {
                 ObjectComposer<ObjectComposer<JSONComposer<String>>> tcMap = json.startObjectField("tcMap");
                 for (Map.Entry<String, String> entry : ThreadContext.getContext().entrySet()) {
-                    tcMap.put(entry.getKey(),entry.getValue());
+                    tcMap.put(entry.getKey(), entry.getValue());
                 }
                 tcMap.end();
             }
