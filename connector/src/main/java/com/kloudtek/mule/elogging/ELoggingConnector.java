@@ -7,6 +7,7 @@ import com.kloudtek.mule.elogging.util.ConnectorAnalyser;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.ThreadContext;
 import org.mule.api.MessagingException;
 import org.mule.api.MuleEvent;
 import org.mule.api.MuleMessage;
@@ -24,11 +25,12 @@ import javax.xml.namespace.QName;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Connector(name = "elogging", friendlyName = "ELogging")
 public class ELoggingConnector {
-    public static final String SRC_EL = "Element";
-    public static final String SRC_EL_XML = "Element XML";
+    private static final String SRC_EL = "Element";
+    private static final String SRC_EL_XML = "Element XML";
     @Config
     ConnectorConfig config;
     private Logger logger;
@@ -47,6 +49,7 @@ public class ELoggingConnector {
      */
     @Processor
     public Object logMessage(MuleEvent muleEvent) {
+        assignMuleTxId(muleEvent);
         MuleMessage message = muleEvent.getMessage();
         Level lvl = config.getLogLevel().getLvl();
         if (logger.isEnabled(lvl)) {
@@ -78,6 +81,7 @@ public class ELoggingConnector {
     }
 
     private Object processAndLog(NestedProcessor nestedProcessor, MuleEvent muleEvent, RequestResponseLogMessage.Type logType) throws Exception {
+        String txId = assignMuleTxId(muleEvent);
         Level lvl = config.getLogLevel().getLvl();
         String flowName = null;
         String flowSourceFileName = null;
@@ -89,12 +93,12 @@ public class ELoggingConnector {
             flowSourceFileLine = objToString(flow.getAnnotation(new QName("http://www.mulesoft.org/schema/mule/documentation", "sourceFileLine")));
         }
         String connectorClass = null;
-        Map<String,String> connectorInfo = null;
-        if( logType == RequestResponseLogMessage.Type.OUTBOUND) {
+        Map<String, String> connectorInfo = null;
+        if (logType == RequestResponseLogMessage.Type.OUTBOUND) {
             MessageProcessor chain = ((PermissiveNestedProcessorChain) nestedProcessor).getChain();
-            if( chain instanceof InterceptingChainLifecycleWrapper) {
+            if (chain instanceof InterceptingChainLifecycleWrapper) {
                 List<MessageProcessor> messageProcessors = ((InterceptingChainLifecycleWrapper) chain).getMessageProcessors();
-                if( messageProcessors != null && ! messageProcessors.isEmpty() ) {
+                if (messageProcessors != null && !messageProcessors.isEmpty()) {
                     MessageProcessor backendMsgProcessor = messageProcessors.iterator().next();
                     connectorClass = backendMsgProcessor.getClass().getName();
                     connectorInfo = ConnectorAnalyser.analyse(backendMsgProcessor);
@@ -107,6 +111,9 @@ public class ELoggingConnector {
             String messageSourceName = muleEvent.getMessageSourceName();
             String messageSourceNameUri = objToString(muleEvent.getMessageSourceURI());
             try {
+                if( txId != null ) {
+                    ThreadContext.put(config.getTransactionIdName(), txId);
+                }
                 MuleMessage responseMessage = ((PermissiveNestedProcessorChain) nestedProcessor).process();
                 MuleLogMessage resp = createMuleLogMessage(responseMessage);
                 long duration = System.currentTimeMillis() - start;
@@ -127,6 +134,10 @@ public class ELoggingConnector {
                     logger.log(lvl, null, rrmsg);
                 }
                 throw e;
+            } finally {
+                if( txId != null ) {
+                    ThreadContext.remove(config.getTransactionIdName());
+                }
             }
         } else {
             return nestedProcessor.process();
@@ -139,6 +150,28 @@ public class ELoggingConnector {
 
     public void setConfig(ConnectorConfig config) {
         this.config = config;
+    }
+
+    private String assignMuleTxId(MuleEvent muleEvent) {
+        String transactionIdName = config.getTransactionIdName();
+        if( config.isAddTransactionId() ) {
+            MuleMessage msg = muleEvent.getMessage();
+            String txId = null;
+            if( config.isAcceptExternalTransactionId() ) {
+                txId = msg.getProperty(transactionIdName, PropertyScope.INBOUND);
+            }
+            if (txId == null) {
+                txId = UUID.randomUUID().toString();
+                msg.setProperty(transactionIdName, txId, PropertyScope.INBOUND);
+            }
+            String oTxId = msg.getProperty(transactionIdName, PropertyScope.OUTBOUND);
+            if (!txId.equals(oTxId)) {
+                msg.setProperty(transactionIdName, txId, PropertyScope.OUTBOUND);
+            }
+            return txId;
+        } else {
+            return null;
+        }
     }
 
     private MuleLogMessage createMuleLogMessage(MuleMessage muleMessage) {
@@ -173,7 +206,7 @@ public class ELoggingConnector {
         return map;
     }
 
-    public String objToString(Object obj) {
+    private String objToString(Object obj) {
         return obj != null ? obj.toString() : null;
     }
 }

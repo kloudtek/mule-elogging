@@ -59,8 +59,8 @@ public class ULJsonLayout extends AbstractStringLayout {
                     }
                 }
             }
-            if (ThreadContext.getImmutableStack() != null) {
-                List<String> ndcList = ThreadContext.getImmutableStack().asList();
+            if (event.getContextStack() != null) {
+                List<String> ndcList = event.getContextStack().asList();
                 if (ndcList != null && !ndcList.isEmpty()) {
                     ArrayComposer<ObjectComposer<JSONComposer<String>>> ndcArray = json.startArrayField("tcStack");
                     for (String val : ndcList) {
@@ -69,9 +69,9 @@ public class ULJsonLayout extends AbstractStringLayout {
                     ndcArray.end();
                 }
             }
-            if (ThreadContext.getContext() != null && !ThreadContext.getContext().isEmpty()) {
+            if (event.getContextMap() != null && !event.getContextMap().isEmpty()) {
                 ObjectComposer<ObjectComposer<JSONComposer<String>>> tcMap = json.startObjectField("tcMap");
-                for (Map.Entry<String, String> entry : ThreadContext.getContext().entrySet()) {
+                for (Map.Entry<String, String> entry : event.getContextMap().entrySet()) {
                     tcMap.put(entry.getKey(), entry.getValue());
                 }
                 tcMap.end();
