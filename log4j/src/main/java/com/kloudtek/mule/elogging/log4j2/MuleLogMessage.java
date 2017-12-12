@@ -31,7 +31,7 @@ public class MuleLogMessage implements Message {
 
     @Override
     public String getFormattedMessage() {
-        return null;
+        return toString();
     }
 
     @Override
