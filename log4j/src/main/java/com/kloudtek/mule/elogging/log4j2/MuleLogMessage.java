@@ -51,7 +51,7 @@ public class MuleLogMessage implements Message {
 
     public void toJson(ObjectComposer<JSONComposer<String>> json, String objName) throws IOException {
         ObjectComposer<ObjectComposer<JSONComposer<String>>> jsonObj = json.startObjectField(objName);
-        jsonObj.put("content", this.payload).put("encoding",encoding)
+        jsonObj.put("message","mule message logged").put("content", this.payload).put("encoding",encoding)
                 .put("mimeType",mimeType).put("payloadClass",payloadClass);
         toJson(jsonObj,"inboundProperties",inboundProperties);
         toJson(jsonObj,"outboundProperties",outboundProperties);

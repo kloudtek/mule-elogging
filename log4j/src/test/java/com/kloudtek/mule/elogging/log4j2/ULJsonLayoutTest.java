@@ -13,7 +13,7 @@ class ULJsonLayoutTest {
         Logger logger = LogManager.getLogger("HelloWorld");
         ThreadContext.put("application","baa");
         ThreadContext.push("foo");
-        ThreadContext.push("bar");
-        logger.info(UPDATE_MARKER,"testing", new Exception("DSsd"));
+        ThreadContext.push("ba\nfdfd\r\n\r");
+        logger.info(UPDATE_MARKER,"testing\n", new Exception("DSsd"));
     }
 }

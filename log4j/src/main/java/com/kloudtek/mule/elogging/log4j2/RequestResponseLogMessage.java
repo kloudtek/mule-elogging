@@ -39,6 +39,7 @@ public class RequestResponseLogMessage implements Message {
 
     public void toJson(ObjectComposer<JSONComposer<String>> json) throws IOException {
         json.put("type",type.name().toLowerCase());
+        json.put("message",type.name().toLowerCase()+" mule message");
         if( request != null ) {
             request.toJson(json,"request");
         }

@@ -23,18 +23,28 @@ import java.util.Map;
 
 @Plugin(name = "ULJsonLayout", category = "Core", elementType = "layout", printObject = true)
 public class ULJsonLayout extends AbstractStringLayout {
+    private static Charset charset;
+    private static boolean prettyPrint;
+
     protected ULJsonLayout(Charset charset) {
         super(charset);
     }
 
     @PluginFactory
-    public static ULJsonLayout createLayout(@PluginAttribute(value = "charset", defaultString = "UTF-8") Charset charset) {
+    public static ULJsonLayout createLayout(@PluginAttribute(value = "charset", defaultString = "UTF-8") Charset charset,
+                                            @PluginAttribute(value = "prettyPrint", defaultString = "false") boolean prettyPrint) {
+        ULJsonLayout.charset = charset;
+        ULJsonLayout.prettyPrint = prettyPrint;
         return new ULJsonLayout(charset);
     }
 
     public String toSerializable(LogEvent event) {
         try {
-            ObjectComposer<JSONComposer<String>> json = JSON.std.with(JSON.Feature.PRETTY_PRINT_OUTPUT)
+            JSON jbase = JSON.std;
+            if( prettyPrint ) {
+                jbase = jbase.with(JSON.Feature.PRETTY_PRINT_OUTPUT);
+            }
+            ObjectComposer<JSONComposer<String>> json = jbase
                     .composeString().startObject()
                     .put("loggerName", event.getLoggerName())
                     .put("loggerFqcn", event.getLoggerFqcn())
