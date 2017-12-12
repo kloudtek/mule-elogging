@@ -69,4 +69,18 @@ public class MuleLogMessage implements Message {
             json.end();
         }
     }
+
+    @Override
+    public String toString() {
+        return "MuleLogMessage{" +
+                "inboundProperties=" + inboundProperties +
+                ", outboundProperties=" + outboundProperties +
+                ", sessionProperties=" + sessionProperties +
+                ", flowVars=" + flowVars +
+                ", payloadClass='" + payloadClass + '\'' +
+                ", mimeType='" + mimeType + '\'' +
+                ", encoding='" + encoding + '\'' +
+                ", payload='" + payload + '\'' +
+                '}';
+    }
 }

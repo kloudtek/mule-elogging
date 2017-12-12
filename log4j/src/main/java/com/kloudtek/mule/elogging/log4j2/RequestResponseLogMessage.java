@@ -153,4 +153,23 @@ public class RequestResponseLogMessage implements Message {
     public enum Type {
         INBOUND, OUTBOUND
     }
+
+    @Override
+    public String toString() {
+        return "RequestResponseLogMessage{" +
+                "type=" + type +
+                ", request=" + request +
+                ", response=" + response +
+                ", sourceElementLocation='" + sourceElementLocation + '\'' +
+                ", sourceElementXml='" + sourceElementXml + '\'' +
+                ", messageSourceUri='" + messageSourceUri + '\'' +
+                ", messageSourceName='" + messageSourceName + '\'' +
+                ", flowName='" + flowName + '\'' +
+                ", flowFileName='" + flowFileName + '\'' +
+                ", flowFileLine='" + flowFileLine + '\'' +
+                ", connectorClass='" + connectorClass + '\'' +
+                ", connectorInfo=" + connectorInfo +
+                ", duration=" + duration +
+                '}';
+    }
 }
