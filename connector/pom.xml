@@ -157,7 +157,7 @@
         <dependency>
             <groupId>com.kloudtek.mule.elogging</groupId>
             <artifactId>mule-elogging-log4j2</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
