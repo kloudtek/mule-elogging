@@ -4,7 +4,6 @@ import com.fasterxml.jackson.jr.ob.JSON;
 import com.fasterxml.jackson.jr.ob.JSONComposer;
 import com.fasterxml.jackson.jr.ob.comp.ArrayComposer;
 import com.fasterxml.jackson.jr.ob.comp.ObjectComposer;
-import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
@@ -12,7 +11,6 @@ import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.core.layout.AbstractStringLayout;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
@@ -51,7 +49,8 @@ public class ULJsonLayout extends AbstractStringLayout {
                     .put("threadName", event.getThreadName())
                     .put("level", event.getLevel().name());
             if (event.getMessage() instanceof MuleLogMessage) {
-                ((MuleLogMessage) event.getMessage()).toJson(json,"mulemsg");
+                json.put("message","mule message logged");
+                ((MuleLogMessage) event.getMessage()).toJson(json,"mule");
             } else if( event.getMessage() instanceof RequestResponseLogMessage ) {
                 ((RequestResponseLogMessage) event.getMessage()).toJson(json);
             } else {

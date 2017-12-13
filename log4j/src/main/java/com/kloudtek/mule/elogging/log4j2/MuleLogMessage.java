@@ -49,24 +49,22 @@ public class MuleLogMessage implements Message {
         return null;
     }
 
-    public void toJson(ObjectComposer<JSONComposer<String>> json, String objName) throws IOException {
-        ObjectComposer<ObjectComposer<JSONComposer<String>>> jsonObj = json.startObjectField(objName);
-        jsonObj.put("message","mule message logged").put("content", this.payload).put("encoding",encoding)
-                .put("mimeType",mimeType).put("payloadClass",payloadClass);
-        toJson(jsonObj,"inboundProperties",inboundProperties);
-        toJson(jsonObj,"outboundProperties",outboundProperties);
-        toJson(jsonObj,"sessionProperties",sessionProperties);
-        toJson(jsonObj,"flowVars",flowVars);
-        jsonObj.end();
+    public void toJson(ObjectComposer<JSONComposer<String>> json, String prefix) throws IOException {
+        json.put(prefix+".content", this.payload)
+                .put(prefix+".encoding",encoding)
+                .put(prefix+".mimeType",mimeType)
+                .put(prefix+".payloadClass",payloadClass);
+        toJson(json,prefix+".inboundProperties",inboundProperties);
+        toJson(json,prefix+".outboundProperties",outboundProperties);
+        toJson(json,prefix+".sessionProperties",sessionProperties);
+        toJson(json,prefix+".flowVars",flowVars);
     }
 
-    private void toJson(ObjectComposer<ObjectComposer<JSONComposer<String>>> json, String name, HashMap<String, String> map) throws IOException {
+    private void toJson(ObjectComposer<JSONComposer<String>> json, String name, HashMap<String, String> map) throws IOException {
         if( ! map.isEmpty() ) {
-            json.startObjectField(name);
             for (Map.Entry<String, String> entry : map.entrySet()) {
-                json.put(entry.getKey(),entry.getValue());
+                json.put(name+"."+entry.getKey(),entry.getValue());
             }
-            json.end();
         }
     }
 

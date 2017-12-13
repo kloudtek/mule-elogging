@@ -1,6 +1,6 @@
 package com.kloudtek.mule.elogging;
 
-import com.kloudtek.mule.elogging.config.ConnectorConfig;
+import com.kloudtek.mule.elogging.config.ELoggingConnectorConfig;
 import com.kloudtek.mule.elogging.log4j2.MuleLogMessage;
 import com.kloudtek.mule.elogging.log4j2.RequestResponseLogMessage;
 import com.kloudtek.mule.elogging.util.ConnectorAnalyser;
@@ -32,7 +32,7 @@ public class ELoggingConnector {
     private static final String SRC_EL = "Element";
     private static final String SRC_EL_XML = "Element XML";
     @Config
-    ConnectorConfig config;
+    ELoggingConnectorConfig config;
     private Logger logger;
 
     @Start
@@ -144,11 +144,11 @@ public class ELoggingConnector {
         }
     }
 
-    public ConnectorConfig getConfig() {
+    public ELoggingConnectorConfig getConfig() {
         return config;
     }
 
-    public void setConfig(ConnectorConfig config) {
+    public void setConfig(ELoggingConnectorConfig config) {
         this.config = config;
     }
 

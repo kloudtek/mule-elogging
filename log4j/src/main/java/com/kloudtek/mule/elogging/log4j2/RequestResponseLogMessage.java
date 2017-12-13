@@ -5,7 +5,6 @@ import com.fasterxml.jackson.jr.ob.comp.ObjectComposer;
 import org.apache.logging.log4j.message.Message;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 public class RequestResponseLogMessage implements Message {
@@ -41,10 +40,10 @@ public class RequestResponseLogMessage implements Message {
         json.put("type",type.name().toLowerCase());
         json.put("message",type.name().toLowerCase()+" mule message");
         if( request != null ) {
-            request.toJson(json,"request");
+            request.toJson(json, "mule.request");
         }
         if( response != null ) {
-            response.toJson(json,"response");
+            response.toJson(json, "mule.response");
         }
         if( sourceElementLocation != null ) {
             json.put("sourceElementLocation",sourceElementLocation);
@@ -59,14 +58,12 @@ public class RequestResponseLogMessage implements Message {
         json.put("flowFileName",flowFileName);
         json.put("flowFileLine",flowFileLine);
         if( connectorClass != null ) {
-            ObjectComposer<ObjectComposer<JSONComposer<String>>> con = json.startObjectField("connector");
-            json.put("class",connectorClass);
+            json.put("connector.class",connectorClass);
             if( connectorInfo != null ) {
                 for (Map.Entry<String, String> entry : connectorInfo.entrySet()) {
-                    json.put(entry.getKey(),entry.getValue());
+                    json.put("connector."+entry.getKey(),entry.getValue());
                 }
             }
-            con.end();
         }
     }
 
