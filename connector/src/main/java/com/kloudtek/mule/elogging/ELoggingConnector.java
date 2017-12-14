@@ -83,29 +83,29 @@ public class ELoggingConnector {
     private Object processAndLog(NestedProcessor nestedProcessor, MuleEvent muleEvent, RequestResponseLogMessage.Type logType) throws Exception {
         String txId = assignMuleTxId(muleEvent);
         Level lvl = config.getLogLevel().getLvl();
-        String flowName = null;
-        String flowSourceFileName = null;
-        String flowSourceFileLine = null;
-        if (muleEvent.getFlowConstruct() instanceof Flow) {
-            Flow flow = (Flow) muleEvent.getFlowConstruct();
-            flowName = flow.getName();
-            flowSourceFileName = objToString(flow.getAnnotation(new QName("http://www.mulesoft.org/schema/mule/documentation", "sourceFileName")));
-            flowSourceFileLine = objToString(flow.getAnnotation(new QName("http://www.mulesoft.org/schema/mule/documentation", "sourceFileLine")));
-        }
-        String connectorClass = null;
-        Map<String, String> connectorInfo = null;
-        if (logType == RequestResponseLogMessage.Type.OUTBOUND) {
-            MessageProcessor chain = ((PermissiveNestedProcessorChain) nestedProcessor).getChain();
-            if (chain instanceof InterceptingChainLifecycleWrapper) {
-                List<MessageProcessor> messageProcessors = ((InterceptingChainLifecycleWrapper) chain).getMessageProcessors();
-                if (messageProcessors != null && !messageProcessors.isEmpty()) {
-                    MessageProcessor backendMsgProcessor = messageProcessors.iterator().next();
-                    connectorClass = backendMsgProcessor.getClass().getName();
-                    connectorInfo = ConnectorAnalyser.analyse(backendMsgProcessor);
+        if (logger.isEnabled(lvl)) {
+            String flowName = null;
+            String flowSourceFileName = null;
+            String flowSourceFileLine = null;
+            if (muleEvent.getFlowConstruct() instanceof Flow) {
+                Flow flow = (Flow) muleEvent.getFlowConstruct();
+                flowName = flow.getName();
+                flowSourceFileName = objToString(flow.getAnnotation(new QName("http://www.mulesoft.org/schema/mule/documentation", "sourceFileName")));
+                flowSourceFileLine = objToString(flow.getAnnotation(new QName("http://www.mulesoft.org/schema/mule/documentation", "sourceFileLine")));
+            }
+            String connectorClass = null;
+            Map<String, String> connectorInfo = null;
+            if (logType == RequestResponseLogMessage.Type.OUTBOUND) {
+                MessageProcessor chain = ((PermissiveNestedProcessorChain) nestedProcessor).getChain();
+                if (chain instanceof InterceptingChainLifecycleWrapper) {
+                    List<MessageProcessor> messageProcessors = ((InterceptingChainLifecycleWrapper) chain).getMessageProcessors();
+                    if (messageProcessors != null && !messageProcessors.isEmpty()) {
+                        MessageProcessor backendMsgProcessor = messageProcessors.iterator().next();
+                        connectorClass = backendMsgProcessor.getClass().getName();
+                        connectorInfo = ConnectorAnalyser.analyse(backendMsgProcessor);
+                    }
                 }
             }
-        }
-        if (logger.isEnabled(lvl)) {
             MuleLogMessage req = createMuleLogMessage(muleEvent.getMessage());
             long start = System.currentTimeMillis();
             String messageSourceName = muleEvent.getMessageSourceName();
