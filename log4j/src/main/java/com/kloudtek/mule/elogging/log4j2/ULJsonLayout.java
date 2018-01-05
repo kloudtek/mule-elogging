@@ -8,11 +8,13 @@ import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
+import org.apache.logging.log4j.core.impl.ThrowableProxy;
 import org.apache.logging.log4j.core.layout.AbstractStringLayout;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
@@ -23,6 +25,17 @@ import java.util.Map;
 public class ULJsonLayout extends AbstractStringLayout {
     private static Charset charset;
     private static boolean prettyPrint;
+    private static final boolean getExtendedStackTraceAsStringAvailable;
+
+    static {
+        Method m;
+        try {
+            m = ThrowableProxy.class.getDeclaredMethod("getExtendedStackTraceAsString");
+        } catch (NoSuchMethodException e) {
+            m = null;
+        }
+        getExtendedStackTraceAsStringAvailable = m != null;
+    }
 
     protected ULJsonLayout(Charset charset) {
         super(charset);
@@ -57,14 +70,12 @@ public class ULJsonLayout extends AbstractStringLayout {
                 json.put("message", event.getMessage().getFormattedMessage());
             }
             if (event.getThrownProxy() != null) {
-                try {
+                if( getExtendedStackTraceAsStringAvailable ) {
                     json.put("stacktrace", event.getThrownProxy().getExtendedStackTraceAsString());
-                } catch (Exception e) {
-                    if( event.getThrown() != null ) {
-                        try( StringWriter sw = new StringWriter() ; PrintWriter pw = new PrintWriter(sw) ) {
-                            event.getThrown().printStackTrace(pw);
-                            json.put("stacktrace", sw.toString() );
-                        }
+                } else if( event.getThrown() != null ) {
+                    try( StringWriter sw = new StringWriter() ; PrintWriter pw = new PrintWriter(sw) ) {
+                        event.getThrown().printStackTrace(pw);
+                        json.put("stacktrace", sw.toString() );
                     }
                 }
             }
