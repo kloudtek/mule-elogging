@@ -6,7 +6,7 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>mule-module</packaging>
     <name>Mule elogging Anypoint Connector</name>
-    <url>https://github.com/Kloudtek/enterprise-cloud-config</url>
+    <url>https://github.com/Kloudtek/mule-elogging</url>
     <description>Mule elogging payload logger</description>
     <organization>
         <name>Kloudtek</name>
