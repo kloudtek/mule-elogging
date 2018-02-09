@@ -140,7 +140,7 @@ public class ELoggingConnector {
                 }
             }
         } else {
-            return nestedProcessor.process();
+            return ((PermissiveNestedProcessorChain) nestedProcessor).process().getPayload();
         }
     }
 
