@@ -1,7 +1,3 @@
 @Library('kloudtek-pipelinelib') _
 
-node() {
-    updateSite("connector/target/update-site","mule") {
-        mavenRelease()
-    }
-}
+mavenRelease path: "connector/target/update-site", name: "mule"
