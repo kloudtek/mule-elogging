@@ -1,10 +1,11 @@
-# elogging Anypoint Connector
+# Mule Enterprise Logging
 
 The object of mule-elogging is to provide a powerful logging framework for mule ESB in order to significantly facilitate
 troubleshooting and identifying problems areas by:
 
 1) logging payload and all metadata at all inbound/outbound integration points
 2) adding a transaction id to track transactions end-to-end
+3) Measure how long each outbound operation took, as well how long the whole inbound operation took to complete
 
 Here's an example of an inbound API call being logged:
 

@@ -1,3 +1,5 @@
 @Library('kloudtek-pipelinelib') _
 
-mavenRelease()
+updateSite("connector/target/update-site","mule") {
+    mavenRelease()
+}
