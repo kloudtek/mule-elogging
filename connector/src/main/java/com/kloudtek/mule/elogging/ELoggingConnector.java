@@ -192,7 +192,8 @@ public class ELoggingConnector {
         String payloadClass = null;
         if (muleMessage.getPayload() != null) {
             payloadClass = muleMessage.getPayload().getClass().getName();
-            payload = muleMessage.getPayloadForLogging();
+            payload = "FOO";
+//            payload = muleMessage.getPayloadForLogging();
         }
         return new MuleLogMessage(inboundProperties, outboundProperties, sessionProperties, flowVars, payloadClass, mimeType, encoding, payload);
     }

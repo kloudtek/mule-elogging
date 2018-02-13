@@ -25,6 +25,8 @@ public class PermissiveNestedProcessorChain extends NestedProcessorChain {
     public MuleMessage process() throws Exception {
         MuleEvent muleEvent;
         muleEvent = new DefaultMuleEvent(event.getMessage(), event);
-        return chain.process(muleEvent).getMessage();
+        MuleMessage newMessage = chain.process(muleEvent).getMessage();
+        event.setMessage(newMessage);
+        return newMessage;
     }
 }

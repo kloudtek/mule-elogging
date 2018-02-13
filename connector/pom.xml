@@ -121,6 +121,9 @@
                                 <replace dir="${project.build.directory}/generated-sources/mule/com/kloudtek/mule/elogging/generated/processors/"
                                          token="new NestedProcessorChain" value="new com.kloudtek.mule.elogging.PermissiveNestedProcessorChain">
                                 </replace>
+                                <replace dir="${project.build.directory}/generated-sources/mule/com/kloudtek/mule/elogging/generated/processors/"
+                                         token="event.getMessage().setPayload(resultPayload);" value="">
+                                </replace>
                             </target>
                         </configuration>
                         <goals>
