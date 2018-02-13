@@ -4,8 +4,9 @@ The object of mule-elogging is to provide a powerful logging framework for mule 
 troubleshooting and identifying problems areas by:
 
 1) logging payload and all metadata at all inbound/outbound integration points
-2) adding a transaction id to track transactions end-to-end
-3) Measure how long each outbound operation took, as well how long the whole inbound operation took to complete
+2) Log received payloads even when an exception occurs (especially important since APIKit removes the payload when handling an exception)
+4) adding a transaction id to track transactions end-to-end
+5) Measure how long each outbound operation took, as well how long the whole inbound operation took to complete
 
 # Connectors
 
