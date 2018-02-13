@@ -7,7 +7,7 @@
     <packaging>pom</packaging>
     <name>Mule Enterprise Logger</name>
     <url>https://github.com/Kloudtek/mule-elogging</url>
-    <description>This provides advanced logging capabilities to mule to help troubleshoot issues</description>
+    <description>Provides extensive logging capabilities to mule</description>
 
     <modules>
         <module>log4j</module>
@@ -39,8 +39,8 @@
 
     <licenses>
         <license>
-            <name>CPAL 1.0</name>
-            <url>https://opensource.org/licenses/CPAL-1.0</url>
+            <name>GPL3</name>
+            <url>http://www.gnu.org/licenses</url>
         </license>
     </licenses>
 

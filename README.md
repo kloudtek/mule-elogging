@@ -1,11 +1,25 @@
 # Mule Enterprise Logging
 
-The object of mule-elogging is to provide a powerful logging framework for mule ESB in order to significantly facilitate
-troubleshooting and identifying problems areas by:
+## The problem
 
-1) logging payload and all metadata at all inbound/outbound integration points
-2) Log received payloads even when an exception occurs (especially important since APIKit removes the payload when handling an exception)
-4) adding a transaction id to track transactions end-to-end
+Root cause analysis is one of the most important tasks in any mule project, and is especially hard to do in any large project.
+
+Unfortunately mule doesn't make that task easier since there isn't a single way to log the data sent/received between 
+APIs/systems (each controller has it's own way of logging), and even then the logging generated can miss critical information. 
+
+For example the HTTP connector can be set to log the data sent/received, however it doesn't log what URL it called, requiring a 
+developer to dig through the code to find the relevant API/backend system being called. Also it logging is done on a 
+different thread, which means it's not possible to add a correlation id to the logs.
+
+APIKit also makes life especially difficult since it's error handling framework wipes out the payload before the exception
+handling code handles the error.
+
+## The solution
+
+This framework is designed to solve all those issues by providing the following capabilities:
+
+1) logging payload and all metadata for all inbound/outbound operations (even when an exception occurs)
+4) Adds a log correlation id that is added to all logging operations, allowing to easily get all logs for a specific transaction.
 5) Measure how long each outbound operation took, as well how long the whole inbound operation took to complete
 
 # Connectors
@@ -206,31 +220,17 @@ example:
             <DefaultRolloverStrategy max="2"/>
         </RollingFile>
     </Appenders>
-
     <Loggers>
-
-        <!-- CXF is used heavily by Mule for web services -->
         <AsyncLogger name="org.apache.cxf" level="WARN"/>
-
-        <!-- Apache Commons tend to make a lot of noise which can clutter the log-->
         <AsyncLogger name="org.apache" level="WARN"/>
-
-        <!-- Reduce startup noise -->
         <AsyncLogger name="org.springframework.beans.factory" level="WARN"/>
-
-        <!-- Mule classes -->
         <AsyncLogger name="org.mule" level="INFO"/>
         <AsyncLogger name="com.mulesoft" level="INFO"/>
-
-        <!-- Reduce DM verbosity -->
         <AsyncLogger name="org.jetel" level="WARN"/>
         <AsyncLogger name="Tracking" level="WARN"/>
-
-        <!--- Gateway Related Loggers -->
         <AsyncLogger name="com.mulesoft.analytics" level="INFO" />
         <AsyncLogger name="com.mulesoft.module.client" level="INFO"/>
         <AsyncLogger name="com.mulesoft.module.policies" level="INFO"/>
-
         <AsyncRoot level="INFO">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="file"/>
@@ -245,7 +245,8 @@ See https://github.com/Kloudtek/mule-elogging/tree/master/example for an example
 
 # Outbound controller analysers
 
-As mentioned earlier, the outbound connection has the ability to analyse the wrapper connector to obtain extra information
+As mentioned earlier, the outbound connection has the ability to analyse the wrapper connector to obtain extra information.
+Those are added to the logs under the "connector." namespace (ie.: connection.path, connection.method in the case of http)
 
 Currently the supported controllers are:
 
@@ -259,3 +260,7 @@ and registering it as a java service as describe here: https://docs.oracle.com/j
 We use GitHub Issues for tracking issues with this connector. 
 
 You can report new issues at this link http://github.com/Kloudtek/mule-elogging/issues.
+
+# Licensing
+
+Mule ELogging is licenses under the GPL 3
