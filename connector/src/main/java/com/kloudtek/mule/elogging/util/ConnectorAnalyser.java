@@ -23,7 +23,7 @@ public abstract class ConnectorAnalyser<X extends MessageProcessor> {
         return null;
     }
 
-    private static synchronized void getAnalysers() {
+    private static synchronized List<ConnectorAnalyser> getAnalysers() {
         if( connectorAnalysers == null ) {
             ArrayList<ConnectorAnalyser> list = new ArrayList<>();
             try {
