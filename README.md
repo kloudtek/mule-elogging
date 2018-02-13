@@ -41,7 +41,7 @@ although keep in mind studio will not automatically update the pom with new vers
 <dependency>
     <groupId>com.kloudtek.mule.elogging</groupId>
     <artifactId>mule-elogging-connector</artifactId>
-    <version>0.9.16</version>
+    <version>0.9.17</version>
 </dependency>
 ```
 

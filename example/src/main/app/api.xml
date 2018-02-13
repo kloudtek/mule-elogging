@@ -20,12 +20,9 @@ http://www.mulesoft.org/schema/mule/elogging http://www.mulesoft.org/schema/mule
         <apikit:console config-ref="api-config" doc:name="APIkit Console"/>
     </flow>
     <flow name="get:/test:api-config">
-        <logger message="wtf" level="INFO" doc:name="Logger"/>
         <elogging:log-outbound config-ref="ELogging__ELoggingConfiguration" doc:name="Log Outbound">
             <http:request config-ref="HTTP_Request_Configuration" path="/maps/api/geocode/json?address=Oxford%20University,%20uk&amp;sensor=false" method="GET" doc:name="HTTP"/>
-            <logger level="INFO" message="BEFORE: #[message]"/>
         </elogging:log-outbound>
-        <logger level="INFO" message="AFTER: #[message]"/>
     </flow>
     <apikit:mapping-exception-strategy name="api-apiKitGlobalExceptionMapping">
         <apikit:mapping statusCode="404">
