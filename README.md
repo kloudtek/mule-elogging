@@ -7,7 +7,116 @@ troubleshooting and identifying problems areas by:
 2) adding a transaction id to track transactions end-to-end
 3) Measure how long each outbound operation took, as well how long the whole inbound operation took to complete
 
-Here's an example of an inbound API call being logged:
+# Connectors
+
+## Installation
+
+### Anypoint Studio
+
+In order to use the elogging connectors, you will need to add the kloudtek mule update site to studio 
+(http://updatesites.kloudtek.com/mule/), and install the ELogging Connector.
+
+In order to do that, click on the help menu, and select 'Install New Software'
+
+![Install Update Site Screenshot 1](screenshots/install-updatesite-1.png)
+
+Then in the screen click on the "Add" button next to the update site selection dropdown
+
+![Install Update Site Screenshot 2](screenshots/install-updatesite-2.png)
+
+And fill in the details for the kloudtek mule update site, and press the "Ok" button
+
+![Install Update Site Screenshot 3](screenshots/install-updatesite-3.png)
+
+After that install the ELogging Connector (under the 'Community' category)
+
+![Install Update Site Screenshot 4](screenshots/install-updatesite-4.png)
+
+### Maven
+
+To add the elogging connector to your project (that will be done automatically by studio if you used the above method, 
+although keep in mind studio will not automatically update the pom with new versions) just add:
+
+```xml
+<dependency>
+    <groupId>com.kloudtek.mule.elogging</groupId>
+    <artifactId>mule-elogging-connector</artifactId>
+    <version>0.9.16</version>
+</dependency>
+```
+
+## Inbound/Outbound logging
+
+ELogging provides you two connector scopes, one for logging an inbound transaction/call and one for outbound transaction/calls
+
+![Connectors Screenshot](screenshots/connectors.png)
+
+The inbound connector should be used to contain everything in the flow. So for example:
+
+![Inbound Connector Screenshot](screenshots/log-inbound-example.png)
+
+The outbound connector should be used to wrap any connector that directly connects to external systems. Only wrap the 
+connector that performs the operation, otherwise connector analysis (that extracts extra information and include it in the logs)
+will not work.
+
+Example:
+
+![Outbound Connector Screenshot](screenshots/log-outbound-example.png)
+
+Either of those connector will result in all message data to be logged as a JSON message. ie:
+
+```
+INFO  2018-02-12 17:15:54,301 [[elogging-example].api-httpListenerConfig.worker.03] mulepayload: {"type":"inbound","message":"inbound mule message","mule.request.content":"{NullPayload}","mule.request.encoding":"UTF-8","mule.request.mimeType":"*/*","mule.request.payloadClass":"org.mule.transport.NullPayload","mule.request.inboundProperties.http.request.uri":"/test","mule.request.inboundProperties.http.query.string":"","mule.request.inboundProperties.http.query.params":"ParameterMap{[]}","mule.request.inboundProperties.http.listener.path":"/*","mule.request.inboundProperties.http.remote.address":"/0:0:0:0:0:0:0:1:50666","mule.request.inboundProperties.http.uri.params":"ParameterMap{[]}","mule.request.inboundProperties.mule_tx_id":"619c55b7-d092-4fd1-b71a-4ff101afc0bb","mule.request.inboundProperties.accept":"*/*","mule.request.inboundProperties.host":"localhost:8081","mule.request.inboundProperties.http.version":"HTTP/1.1","mule.request.inboundProperties.http.method":"GET","mule.request.inboundProperties.http.relative.path":"/test","mule.request.inboundProperties.http.request.path":"/test","mule.request.inboundProperties.http.scheme":"http","mule.request.inboundProperties.user-agent":"curl/7.54.0","mule.request.outboundProperties.mule_tx_id":"619c55b7-d092-4fd1-b71a-4ff101afc0bb","mule.response.content":"{\n   \"results\" : [\n      {\n         \"address_components\" : [\n            {\n               \"long_name\" : \"Oxford\",\n               \"short_name\" : \"Oxford\",\n               \"types\" : [ \"postal_town\" ]\n            },\n            {\n               \"long_name\" : \"Oxfordshire\",\n               \"short_name\" : \"Oxfordshire\",\n               \"types\" : [ \"administrative_area_level_2\", \"political\" ]\n            },\n            {\n               \"long_name\" : \"England\",\n               \"short_name\" : \"England\",\n               \"types\" : [ \"administrative_area_level_1\", \"political\" ]\n            },\n            {\n               \"long_name\" : \"United Kingdom\",\n               \"short_name\" : \"GB\",\n               \"types\" : [ \"country\", \"political\" ]\n            },\n            {\n               \"long_name\" : \"OX1 2JD\",\n               \"short_name\" : \"OX1 2JD\",\n               \"types\" : [ \"postal_code\" ]\n            }\n         ],\n         \"formatted_address\" : \"Oxford OX1 2JD, UK\",\n         \"geometry\" : {\n            \"location\" : {\n               \"lat\" : 51.7548164,\n               \"lng\" : -1.2543668\n            },\n            \"location_type\" : \"GEOMETRIC_CENTER\",\n            \"viewport\" : {\n               \"northeast\" : {\n                  \"lat\" : 51.75616538029149,\n                  \"lng\" : -1.253017819708498\n               },\n               \"southwest\" : {\n                  \"lat\" : 51.75346741970849,\n                  \"lng\" : -1.255715780291502\n               }\n            }\n         },\n         \"place_id\" : \"ChIJW0iM76nGdkgR7a8BoIMY_9I\",\n         \"types\" : [ \"establishment\", \"point_of_interest\", \"university\" ]\n      }\n   ],\n   \"status\" : \"OK\"\n}\n","mule.response.encoding":"UTF-8","mule.response.mimeType":"application/json","mule.response.payloadClass":"org.glassfish.grizzly.utils.BufferInputStream","mule.response.inboundProperties.date":"Tue, 13 Feb 2018 01:15:54 GMT","mule.response.inboundProperties.server":"mafe","mule.response.inboundProperties.expires":"Wed, 14 Feb 2018 01:15:54 GMT","mule.response.inboundProperties.transfer-encoding":"chunked","mule.response.inboundProperties.vary":"Accept-Language,Accept-Encoding","mule.response.inboundProperties.x-frame-options":"SAMEORIGIN","mule.response.inboundProperties.http.reason":"OK","mule.response.inboundProperties.access-control-allow-origin":"*","mule.response.inboundProperties.x-xss-protection":"1; mode=block","mule.response.inboundProperties.http.status":"200","mule.response.inboundProperties.content-type":"application/json; charset=UTF-8","mule.response.inboundProperties.alt-svc":"hq=\":443\"; ma=2592000; quic=51303431; quic=51303339; quic=51303338; quic=51303337; quic=51303335,quic=\":443\"; ma=2592000; v=\"41,39,38,37,35\"","mule.response.inboundProperties.cache-control":"public, max-age=86400","mule.response.inboundProperties.accept-ranges":"none","mule.response.outboundProperties.http.status":"200","mule.response.outboundProperties.Content-Type":"application/json;charset=UTF-8","mule.response.flowVars._ApikitResponseTransformer_contractMimeTypes":"[application/json]","mule.response.flowVars._ApikitResponseTransformer_AcceptedHeaders":"*/*","mule.response.flowVars._ApikitResponseTransformer_bestMatchRepresentation":"application/json","mule.response.flowVars._ApikitResponseTransformer_apikitRouterRequest":"yes","messageSourceUri":"http://localhost:8081/test","messageSourceName":"http://localhost:8081/test","duration":2158,"flowName":"api-main","flowFileName":"api.xml","flowFileLine":"11"}
+```
+
+## JSON Layout
+
+If you're going to send your log messages to a centralized log system like Splunk or ELK, it is highly advisable to use a json layout for your logs.
+
+Although in theory this a simple thing to do in theory, mule dependency conflicts makes that extremely hard which led us to create a custom one
+that is designed to be compatible with with mule.
+
+To use our JSON logger in an application, you need to specify the layout as `ELJsonLayout`, and you need to add a 
+`packages` attributes to the configuration.
+
+example:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration packages="com.kloudtek.mule.elogging.log4j2">
+    <Appenders>
+        <RollingFile name="file" fileName="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}elogging-example.log" 
+                 filePattern="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}elogging-example-%i.log">
+            <PatternLayout pattern="%d [%t] %-5p %c - %m%n" />
+            <SizeBasedTriggeringPolicy size="10 MB" />
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+        <RollingFile name="jsonFile" fileName="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}elogging-example.log.json"
+                 filePattern="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}elogging-example-%i.log.json">
+            <ELJsonLayout/>
+            <SizeBasedTriggeringPolicy size="10 MB"/>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+		<AsyncLogger name="org.mule.module.http.internal.HttpMessageLogger" level="WARN"/>
+		<AsyncLogger name="com.mulesoft.mule.transport.jdbc" level="WARN"/>
+        <AsyncLogger name="org.apache.cxf" level="WARN"/>
+        <AsyncLogger name="org.apache" level="WARN"/>
+        <AsyncLogger name="org.springframework.beans.factory" level="WARN"/>
+        <AsyncLogger name="org.mule" level="INFO"/>
+        <AsyncLogger name="com.mulesoft" level="INFO"/>
+        <AsyncLogger name="org.jetel" level="WARN"/>
+        <AsyncLogger name="Tracking" level="WARN"/>
+        <AsyncRoot level="INFO">
+            <AppenderRef ref="file" />
+            <AppenderRef ref="jsonFile" />
+        </AsyncRoot>
+    </Loggers>
+</Configuration>
+```
+
+With this layout, your log will look like this:
 
 ```json
 {
@@ -76,29 +185,65 @@ Here's an example of an inbound API call being logged:
 }
 ```
 
-ELogging is divided into two components:
+In order to add it to the mule runtime itself, you will need to download the mule-elogging-log4j2.jar file (https://mvnrepository.com/artifact/com.kloudtek.mule.elogging/mule-elogging-log4j2),
+and add it to `lib/boot` directory of the mule runtime.
 
-The first one is a JSON logger library so that all information can be logged as structured data that can be easily read by
-a log shipping software like logstash.
+You will then be able to add the layout to the `conf/log4j2.xml` file (you don't need to specify the packages attribute when the jar is added to the server, although we recommend *always* doing so for the applications)
 
-The second one is a custom controller that you can add to your application to log 
+example:
 
-# Installation 
+```$xml
+<Configuration>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%-5p %d [%t] %c: %m%n"/>
+        </Console>
+        <RollingFile name="file" fileName="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}mule_ee.log.json"
+        		filePattern="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}mule_ee-%i.log.json">
+            <ELJsonLayout/>
+            <SizeBasedTriggeringPolicy size="10 MB" />
+            <DefaultRolloverStrategy max="2"/>
+        </RollingFile>
+    </Appenders>
 
-## log4j library:
+    <Loggers>
 
-You will need to download the [log4j library](http://central.maven.org/maven2/com/kloudtek/mule/elogging/mule-elogging-log4j2/0.9.10/mule-elogging-log4j2-0.9.10.jar),
-and add it to your mule runtime in the directory `lib/boot`
+        <!-- CXF is used heavily by Mule for web services -->
+        <AsyncLogger name="org.apache.cxf" level="WARN"/>
 
-For beta connectors you can download the source code and build it with devkit to find it available on your local repository. Then you can add it to Studio
+        <!-- Apache Commons tend to make a lot of noise which can clutter the log-->
+        <AsyncLogger name="org.apache" level="WARN"/>
 
-For released connectors you can download them from the update site in Anypoint Studio. 
-Open Anypoint Studio, go to Help → Install New Software and select Anypoint Connectors Update Site where you’ll find all available connectors.
+        <!-- Reduce startup noise -->
+        <AsyncLogger name="org.springframework.beans.factory" level="WARN"/>
 
-#Usage
+        <!-- Mule classes -->
+        <AsyncLogger name="org.mule" level="INFO"/>
+        <AsyncLogger name="com.mulesoft" level="INFO"/>
 
-Mule ELogging will provide you a two components: Log Inbound and Log Outbound
+        <!-- Reduce DM verbosity -->
+        <AsyncLogger name="org.jetel" level="WARN"/>
+        <AsyncLogger name="Tracking" level="WARN"/>
+
+        <!--- Gateway Related Loggers -->
+        <AsyncLogger name="com.mulesoft.analytics" level="INFO" />
+        <AsyncLogger name="com.mulesoft.module.client" level="INFO"/>
+        <AsyncLogger name="com.mulesoft.module.policies" level="INFO"/>
+
+        <AsyncRoot level="INFO">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="file"/>
+        </AsyncRoot>
+    </Loggers>
+</Configuration>
+```
+
+# Example application
+
+See 
 
 # Reporting Issues
 
-We use GitHub:Issues for tracking issues with this connector. You can report new issues at this link http://github.com/Kloudtek/mule-elogging/issues.
+We use GitHub Issues for tracking issues with this connector. 
+
+You can report new issues at this link http://github.com/Kloudtek/mule-elogging/issues.

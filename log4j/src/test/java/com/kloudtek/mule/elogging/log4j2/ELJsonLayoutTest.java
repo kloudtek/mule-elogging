@@ -3,8 +3,8 @@ package com.kloudtek.mule.elogging.log4j2;
 import org.apache.logging.log4j.*;
 import org.junit.jupiter.api.Test;
 
-class ULJsonLayoutTest {
-    private Logger logger = LogManager.getLogger(ULJsonLayoutTest.class.getName());
+class ELJsonLayoutTest {
+    private Logger logger = LogManager.getLogger(ELJsonLayoutTest.class.getName());
     private static final Marker SQL_MARKER = MarkerManager.getMarker("SQL");
     private static final Marker UPDATE_MARKER = MarkerManager.getMarker("SQL_UPDATE").setParents(SQL_MARKER);
 

@@ -1,5 +1,7 @@
 package com.kloudtek.mule.elogging.log4j2;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.jr.ob.JSON;
 import com.fasterxml.jackson.jr.ob.JSONComposer;
 import com.fasterxml.jackson.jr.ob.comp.ObjectComposer;
 import org.apache.logging.log4j.message.Message;
@@ -69,12 +71,18 @@ public class RequestResponseLogMessage implements Message {
 
     @Override
     public String getFormattedMessage() {
-        return null;
+        try {
+            ObjectComposer<JSONComposer<String>> json = JSON.std.composeString().startObject();
+            toJson(json);
+            return json.end().finish();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public String getFormat() {
-        return null;
+        return "json";
     }
 
     @Override

@@ -1,6 +1,5 @@
 package com.kloudtek.mule.elogging;
 
-import com.kloudtek.mule.elogging.config.ELoggingConnectorConfig;
 import com.kloudtek.mule.elogging.log4j2.MuleLogMessage;
 import com.kloudtek.mule.elogging.log4j2.RequestResponseLogMessage;
 import com.kloudtek.mule.elogging.util.ConnectorAnalyser;
@@ -83,7 +82,8 @@ public class ELoggingConnector {
     private Object processAndLog(NestedProcessor nestedProcessor, MuleEvent muleEvent, RequestResponseLogMessage.Type logType) throws Exception {
         String txId = assignMuleTxId(muleEvent);
         Level lvl = config.getLogLevel().getLvl();
-        if (logger.isEnabled(lvl)) {
+        Level elvl = config.getLogLevelOnException().getLvl();
+        if (logger.isEnabled(lvl) || logger.isEnabled(elvl)) {
             String flowName = null;
             String flowSourceFileName = null;
             String flowSourceFileLine = null;
@@ -117,7 +117,9 @@ public class ELoggingConnector {
                 MuleMessage responseMessage = ((PermissiveNestedProcessorChain) nestedProcessor).process();
                 MuleLogMessage resp = createMuleLogMessage(responseMessage);
                 long duration = System.currentTimeMillis() - start;
-                logger.log(lvl, null, new RequestResponseLogMessage(logType, req, resp, duration, messageSourceName, messageSourceNameUri, flowName, flowSourceFileName, flowSourceFileLine, connectorClass, connectorInfo));
+                if( logger.isEnabled(lvl)) {
+                    logger.log(lvl, null, new RequestResponseLogMessage(logType, req, resp, duration, messageSourceName, messageSourceNameUri, flowName, flowSourceFileName, flowSourceFileLine, connectorClass, connectorInfo));
+                }
                 return responseMessage.getPayload();
             } catch (Exception e) {
                 if (e instanceof MessagingException) {
@@ -131,7 +133,9 @@ public class ELoggingConnector {
                     if (info.containsKey(SRC_EL_XML)) {
                         rrmsg.setSourceElementXml(info.get(SRC_EL_XML).toString());
                     }
-                    logger.log(lvl, null, rrmsg);
+                    if(logger.isEnabled(elvl)) {
+                        logger.log(elvl, null, rrmsg);
+                    }
                 }
                 throw e;
             } finally {

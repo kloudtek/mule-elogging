@@ -21,8 +21,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
-@Plugin(name = "ULJsonLayout", category = "Core", elementType = "layout", printObject = true)
-public class ULJsonLayout extends AbstractStringLayout {
+@Plugin(name = "ELJsonLayout", category = "Core", elementType = "layout", printObject = true)
+public class ELJsonLayout extends AbstractStringLayout {
     private static Charset charset;
     private static boolean prettyPrint;
     private static final boolean getExtendedStackTraceAsStringAvailable;
@@ -37,16 +37,16 @@ public class ULJsonLayout extends AbstractStringLayout {
         getExtendedStackTraceAsStringAvailable = m != null;
     }
 
-    protected ULJsonLayout(Charset charset) {
+    protected ELJsonLayout(Charset charset) {
         super(charset);
     }
 
     @PluginFactory
-    public static ULJsonLayout createLayout(@PluginAttribute(value = "charset", defaultString = "UTF-8") Charset charset,
+    public static ELJsonLayout createLayout(@PluginAttribute(value = "charset", defaultString = "UTF-8") Charset charset,
                                             @PluginAttribute(value = "prettyPrint", defaultString = "false") boolean prettyPrint) {
-        ULJsonLayout.charset = charset;
-        ULJsonLayout.prettyPrint = prettyPrint;
-        return new ULJsonLayout(charset);
+        ELJsonLayout.charset = charset;
+        ELJsonLayout.prettyPrint = prettyPrint;
+        return new ELJsonLayout(charset);
     }
 
     public String toSerializable(LogEvent event) {

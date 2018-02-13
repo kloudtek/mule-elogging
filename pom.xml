@@ -12,6 +12,7 @@
     <modules>
         <module>log4j</module>
         <module>connector</module>
+        <module>example</module>
     </modules>
 
     <organization>

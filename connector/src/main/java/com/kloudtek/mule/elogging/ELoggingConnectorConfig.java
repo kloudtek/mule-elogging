@@ -1,11 +1,10 @@
-package com.kloudtek.mule.elogging.config;
+package com.kloudtek.mule.elogging;
 
-import com.kloudtek.mule.elogging.LogLevel;
 import org.mule.api.annotations.components.Configuration;
 import org.mule.api.annotations.Configurable;
 import org.mule.api.annotations.param.Default;
 
-@Configuration(friendlyName = "ELoggingConfiguration")
+@Configuration(friendlyName = "ELConfiguration")
 public class ELoggingConnectorConfig {
     @Configurable
     @Default("mulepayload")
@@ -14,6 +13,10 @@ public class ELoggingConnectorConfig {
     @Configurable
     @Default("DEBUG")
     private LogLevel logLevel;
+
+    @Configurable
+    @Default("ERROR")
+    private LogLevel logLevelOnException;
 
     @Configurable
     @Default("true")
@@ -65,5 +68,13 @@ public class ELoggingConnectorConfig {
 
     public void setAcceptExternalTransactionId(boolean acceptExternalTransactionId) {
         this.acceptExternalTransactionId = acceptExternalTransactionId;
+    }
+
+    public LogLevel getLogLevelOnException() {
+        return logLevelOnException;
+    }
+
+    public void setLogLevelOnException(LogLevel logLevelOnException) {
+        this.logLevelOnException = logLevelOnException;
     }
 }
