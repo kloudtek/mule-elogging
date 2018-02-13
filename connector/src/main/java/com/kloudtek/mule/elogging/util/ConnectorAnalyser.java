@@ -5,6 +5,7 @@ import org.mule.api.processor.MessageProcessor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 
 public abstract class ConnectorAnalyser<X extends MessageProcessor> {
     private static List<ConnectorAnalyser> connectorAnalysers;
@@ -14,6 +15,15 @@ public abstract class ConnectorAnalyser<X extends MessageProcessor> {
 
     @SuppressWarnings("unchecked")
     public static Map<String,String> analyse(MessageProcessor processor ) {
+        for (ConnectorAnalyser analyser : getAnalysers()) {
+            if( analyser.supports(processor) ) {
+                return analyser.doAnalyse(processor);
+            }
+        }
+        return null;
+    }
+
+    private static synchronized void getAnalysers() {
         if( connectorAnalysers == null ) {
             ArrayList<ConnectorAnalyser> list = new ArrayList<>();
             try {
@@ -21,13 +31,12 @@ public abstract class ConnectorAnalyser<X extends MessageProcessor> {
             } catch (Exception e) {
                 //
             }
+            ServiceLoader<ConnectorAnalyser> services = ServiceLoader.load(ConnectorAnalyser.class);
+            for (ConnectorAnalyser service : services) {
+                list.add(service);
+            }
             connectorAnalysers = list;
         }
-        for (ConnectorAnalyser analyser : connectorAnalysers) {
-            if( analyser.supports(processor) ) {
-                return analyser.doAnalyse(processor);
-            }
-        }
-        return null;
+        return connectorAnalysers;
     }
 }

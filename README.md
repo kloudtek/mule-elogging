@@ -242,6 +242,17 @@ example:
 
 See https://github.com/Kloudtek/mule-elogging/tree/master/example for an example mule application
 
+# Outbound controller analysers
+
+As mentioned earlier, the outbound connection has the ability to analyse the wrapper connector to obtain extra information
+
+Currently the supported controllers are:
+
+- HTTP
+
+You can also create your own custom analysers by extending the class `com.kloudtek.mule.elogging.util.ConnectorAnalyser`,
+and registering it as a java service as describe here: https://docs.oracle.com/javase/tutorial/ext/basics/spi.html#definte-the-service-that-retrieves-service-provider-implementations
+
 # Reporting Issues
 
 We use GitHub Issues for tracking issues with this connector. 
