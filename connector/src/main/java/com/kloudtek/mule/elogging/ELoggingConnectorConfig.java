@@ -20,6 +20,10 @@ public class ELoggingConnectorConfig {
 
     @Configurable
     @Default("true")
+    private boolean logPayload;
+
+    @Configurable
+    @Default("true")
     private boolean addTransactionId;
 
     @Configurable
@@ -76,5 +80,13 @@ public class ELoggingConnectorConfig {
 
     public void setLogLevelOnException(LogLevel logLevelOnException) {
         this.logLevelOnException = logLevelOnException;
+    }
+
+    public boolean isLogPayload() {
+        return logPayload;
+    }
+
+    public void setLogPayload(boolean logPayload) {
+        this.logPayload = logPayload;
     }
 }
