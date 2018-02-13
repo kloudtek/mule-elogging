@@ -18,19 +18,19 @@ In order to use the elogging connectors, you will need to add the kloudtek mule 
 
 In order to do that, click on the help menu, and select 'Install New Software'
 
-![Install Update Site Screenshot 1](screenshots/install-updatesite-1.png)
+![Install Update Site Screenshot 1](screenshots/install-updatesite-1.png?raw=true)
 
 Then in the screen click on the "Add" button next to the update site selection dropdown
 
-![Install Update Site Screenshot 2](screenshots/install-updatesite-2.png)
+![Install Update Site Screenshot 2](screenshots/install-updatesite-2.png?raw=true)
 
 And fill in the details for the kloudtek mule update site, and press the "Ok" button
 
-![Install Update Site Screenshot 3](screenshots/install-updatesite-3.png)
+![Install Update Site Screenshot 3](screenshots/install-updatesite-3.png?raw=true)
 
 After that install the ELogging Connector (under the 'Community' category)
 
-![Install Update Site Screenshot 4](screenshots/install-updatesite-4.png)
+![Install Update Site Screenshot 4](screenshots/install-updatesite-4.png?raw=true)
 
 ### Maven
 
@@ -49,7 +49,7 @@ although keep in mind studio will not automatically update the pom with new vers
 
 ELogging provides you two connector scopes, one for logging an inbound transaction/call and one for outbound transaction/calls
 
-![Connectors Screenshot](screenshots/connectors.png)
+![Connectors Screenshot](screenshots/connectors.png?raw=true)
 
 The inbound connector should be used to contain everything in the flow. So for example:
 
@@ -192,7 +192,7 @@ You will then be able to add the layout to the `conf/log4j2.xml` file (you don't
 
 example:
 
-```$xml
+```xml
 <Configuration>
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
@@ -240,7 +240,7 @@ example:
 
 # Example application
 
-See 
+See https://github.com/Kloudtek/mule-elogging/tree/master/example for an example mule application
 
 # Reporting Issues
 
