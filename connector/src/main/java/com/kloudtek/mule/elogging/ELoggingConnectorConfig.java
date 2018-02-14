@@ -4,7 +4,7 @@ import org.mule.api.annotations.components.Configuration;
 import org.mule.api.annotations.Configurable;
 import org.mule.api.annotations.param.Default;
 
-@Configuration(friendlyName = "ELConfiguration")
+@Configuration(friendlyName = "Configuration")
 public class ELoggingConnectorConfig {
     @Configurable
     @Default("mulepayload")
