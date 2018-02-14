@@ -4,15 +4,10 @@
 
 Root cause analysis is one of the most important tasks in any mule project, and is especially hard to do in any large project.
 
-Unfortunately mule doesn't make that task easier since there isn't a single way to log the data sent/received between 
-APIs/systems (each controller has it's own way of logging), and even then the logging generated can miss critical information. 
-
-For example the HTTP connector can be set to log the data sent/received, however it doesn't log what URL it called, requiring a 
-developer to dig through the code to find the relevant API/backend system being called. Also it logging is done on a 
-different thread, which means it's not possible to add a correlation id to the logs.
-
-APIKit also makes life especially difficult since it's error handling framework wipes out the payload before the exception
-handling code handles the error.
+Unfortunately mule makes that especially difficult, especially for APIs:
+- HTTP logging can be used but misses critical information like what URL is being called, forcing developers to constantly go refer to the code
+- HTTP logging happens in a different thread, so a log correlation id cannot be used
+- APIKit wipes out the payload before the exception handling code receives it, making it impossible to log the reason for the error if you're using APIKit exception handling
 
 ## The solution
 
@@ -20,7 +15,7 @@ This framework is designed to solve all those issues by providing the following 
 
 1) logging payload and all metadata for all inbound/outbound operations (even when an exception occurs)
 4) Adds a correlation id to all logs, that is propagated across API and systems
-5) Measure how long each outbound operation took, as well how long the whole inbound operation took to complete
+5) Record timings for inbound and outbound operations, allowing to quickly and easily identify time spend waiting for backend systems and time mule spent processing
 
 # Connectors
 
