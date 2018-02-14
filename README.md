@@ -96,7 +96,7 @@ The connector supports the following configuration
 
 If you're going to send your log messages to a centralized log system like Splunk or ELK, it is highly advisable to use a json layout for your logs.
 
-Although in theory this a simple thing to do in theory, mule dependency conflicts makes that extremely hard which led us to create a custom one
+Although in theory this a simple thing to do, mule dependency conflicts makes that extremely hard which led us to create a custom one
 that is designed to be compatible with with mule.
 
 To use our JSON logger in an application, you need to specify the layout as `ELJsonLayout`, and you need to add a 
