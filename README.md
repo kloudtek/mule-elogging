@@ -19,7 +19,7 @@ handling code handles the error.
 This framework is designed to solve all those issues by providing the following capabilities:
 
 1) logging payload and all metadata for all inbound/outbound operations (even when an exception occurs)
-4) Adds a log correlation id that is added to all logging operations, allowing to easily get all logs for a specific transaction.
+4) Adds a correlation id to all logs, that is propagated across API and systems
 5) Measure how long each outbound operation took, as well how long the whole inbound operation took to complete
 
 # Connectors
