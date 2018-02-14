@@ -60,7 +60,7 @@ ELogging provides you two connector scopes, one for logging an inbound transacti
 
 ![Connectors Screenshot](screenshots/connectors.png?raw=true)
 
-The inbound connector should be used to contain everything in the flow. So for example:
+The inbound connector should be used to used to wrap all logic in inbound flows. For example:
 
 ![Inbound Connector Screenshot](screenshots/log-inbound-example.png)
 
@@ -100,7 +100,8 @@ Although in theory this a simple thing to do, mule dependency conflicts makes th
 of a custom JSON layout that is compatible with mule.
 
 To use our JSON logger in an application, you need to edit the log4j configuration file (`src/main/resources/log4j2.xml`) 
-and specify the layout as `ELJsonLayout`, as well as adding `com.kloudtek.mule.elogging.log4j2` to the configuration `packages` attributes to the configuration.
+and specify the layout as `ELJsonLayout`, as well as adding `com.kloudtek.mule.elogging.log4j2` to the configuration `packages` attributes to the 
+configuration.
 
 example:
 
