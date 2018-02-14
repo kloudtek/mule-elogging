@@ -108,16 +108,16 @@ example:
 <?xml version="1.0" encoding="utf-8"?>
 <Configuration packages="com.kloudtek.mule.elogging.log4j2">
     <Appenders>
-        <RollingFile name="file" fileName="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}elogging-example.log" 
-                 filePattern="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}elogging-example-%i.log">
-            <PatternLayout pattern="%d [%t] %-5p %c - %m%n" />
-            <SizeBasedTriggeringPolicy size="10 MB" />
-            <DefaultRolloverStrategy max="10"/>
-        </RollingFile>
         <RollingFile name="jsonFile" fileName="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}elogging-example.log.json"
                  filePattern="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}elogging-example-%i.log.json">
             <ELJsonLayout/>
             <SizeBasedTriggeringPolicy size="10 MB"/>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+        <RollingFile name="file" fileName="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}elogging-example.log" 
+                 filePattern="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}elogging-example-%i.log">
+            <PatternLayout pattern="%d [%t] %-5p %c - %m%n" />
+            <SizeBasedTriggeringPolicy size="10 MB" />
             <DefaultRolloverStrategy max="10"/>
         </RollingFile>
     </Appenders>
