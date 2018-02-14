@@ -99,8 +99,8 @@ If you're going to send your log messages to a centralized log system like Splun
 Although in theory this a simple thing to do, mule dependency conflicts makes that extremely hard which required the creation
 of a custom JSON layout that is compatible with mule.
 
-To use our JSON logger in an application, you need to specify the layout as `ELJsonLayout`, and you need to add a 
-`packages` attributes to the configuration.
+To use our JSON logger in an application, you need to edit the log4j configuration file (`src/main/resources/log4j2.xml`) 
+and specify the layout as `ELJsonLayout`, as well as adding `com.kloudtek.mule.elogging.log4j2` to the configuration `packages` attributes to the configuration.
 
 example:
 
