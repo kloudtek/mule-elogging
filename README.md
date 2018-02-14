@@ -2,16 +2,15 @@
 
 ## The problem
 
-Root cause analysis is one of the most important tasks in any mule project, and is especially hard to do in any large project.
-
-Unfortunately mule makes that especially difficult, especially for APIs:
+Root cause analysis is one of the most important tasks in any mule project, but can be quite difficult and time consuming 
+to do, especially in API project because for various reasons which include:
 - HTTP logging can be used but misses critical information like what URL is being called, forcing developers to constantly go refer to the code
 - HTTP logging happens in a different thread, so a log correlation id cannot be used
 - APIKit wipes out the payload before the exception handling code receives it, making it impossible to log the reason for the error if you're using APIKit exception handling
 
 ## The solution
 
-This framework is designed to solve all those issues by providing the following capabilities:
+This framework is designed to solve all those issues (and more) by providing the following capabilities:
 
 1) logging payload and all metadata for all inbound/outbound operations (even when an exception occurs)
 4) Adds a correlation id to all logs, that is propagated across API and systems
