@@ -266,10 +266,8 @@ and registering it as a java service as describe here: https://docs.oracle.com/j
 
 # Reporting Issues
 
-We use GitHub Issues for tracking issues with this connector. 
-
 You can report new issues at this link http://github.com/Kloudtek/mule-elogging/issues.
 
 # Licensing
 
-Mule ELogging is licenses under the GPL 3
+Mule ELogging is licensed under the GPL 3
