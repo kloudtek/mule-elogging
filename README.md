@@ -212,6 +212,8 @@ With this layout, your log will look like this:
 In order to add it to the mule runtime itself, you will need to download the mule-elogging-log4j2.jar file (https://mvnrepository.com/artifact/com.kloudtek.mule.elogging/mule-elogging-log4j2),
 and add it to `lib/boot` directory of the mule runtime.
 
+You can also use this command to download the jar: `mvn dependency:get -Dartifact=com.kloudtek.mule.elogging:mule-elogging-log4j2:0.9.17 -Ddest=mule-elogging-log4j2-0.9.17.jar`  
+
 You will then be able to add the layout to the `conf/log4j2.xml` file (you don't need to specify the packages attribute when the jar is added to the server, although we recommend *always* doing so for the applications)
 
 example:
