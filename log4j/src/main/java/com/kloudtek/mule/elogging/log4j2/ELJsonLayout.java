@@ -23,7 +23,6 @@ import java.util.Map;
 
 @Plugin(name = "ELJsonLayout", category = "Core", elementType = "layout", printObject = true)
 public class ELJsonLayout extends AbstractStringLayout {
-    private static Charset charset;
     private static boolean prettyPrint;
     private static final boolean getExtendedStackTraceAsStringAvailable;
 
@@ -44,7 +43,6 @@ public class ELJsonLayout extends AbstractStringLayout {
     @PluginFactory
     public static ELJsonLayout createLayout(@PluginAttribute(value = "charset", defaultString = "UTF-8") Charset charset,
                                             @PluginAttribute(value = "prettyPrint", defaultString = "false") boolean prettyPrint) {
-        ELJsonLayout.charset = charset;
         ELJsonLayout.prettyPrint = prettyPrint;
         return new ELJsonLayout(charset);
     }
@@ -52,7 +50,7 @@ public class ELJsonLayout extends AbstractStringLayout {
     public String toSerializable(LogEvent event) {
         try {
             JSON jbase = JSON.std;
-            if( prettyPrint ) {
+            if (prettyPrint) {
                 jbase = jbase.with(JSON.Feature.PRETTY_PRINT_OUTPUT);
             }
             ObjectComposer<JSONComposer<String>> json = jbase
@@ -61,28 +59,21 @@ public class ELJsonLayout extends AbstractStringLayout {
                     .put("loggerFqcn", event.getLoggerFqcn())
                     .put("threadName", event.getThreadName())
                     .put("level", event.getLevel().name());
-            if (event.getMessage() instanceof MuleLogMessage) {
-                json.put("message","mule message logged");
-                ((MuleLogMessage) event.getMessage()).toJson(json,"mule");
-            } else if( event.getMessage() instanceof RequestResponseLogMessage ) {
-                ((RequestResponseLogMessage) event.getMessage()).toJson(json);
-            } else {
-                json.put("message", event.getMessage().getFormattedMessage());
-            }
+            json.put("message", event.getMessage().getFormattedMessage());
             if (event.getThrownProxy() != null) {
-                if( getExtendedStackTraceAsStringAvailable ) {
+                if (getExtendedStackTraceAsStringAvailable) {
                     json.put("stacktrace", event.getThrownProxy().getExtendedStackTraceAsString());
-                } else if( event.getThrown() != null ) {
-                    try( StringWriter sw = new StringWriter() ; PrintWriter pw = new PrintWriter(sw) ) {
+                } else if (event.getThrown() != null) {
+                    try (StringWriter sw = new StringWriter(); PrintWriter pw = new PrintWriter(sw)) {
                         event.getThrown().printStackTrace(pw);
-                        json.put("stacktrace", sw.toString() );
+                        json.put("stacktrace", sw.toString());
                     }
                 }
             }
             if (event.getContextStack() != null) {
                 List<String> ndcList = event.getContextStack().asList();
                 if (ndcList != null && !ndcList.isEmpty()) {
-                    ArrayComposer<ObjectComposer<JSONComposer<String>>> ndcArray = json.startArrayField("tcStack");
+                    ArrayComposer<ObjectComposer<JSONComposer<String>>> ndcArray = json.startArrayField("logctx.stack");
                     for (String val : ndcList) {
                         ndcArray.add(val);
                     }
@@ -90,11 +81,9 @@ public class ELJsonLayout extends AbstractStringLayout {
                 }
             }
             if (event.getContextMap() != null && !event.getContextMap().isEmpty()) {
-                ObjectComposer<ObjectComposer<JSONComposer<String>>> tcMap = json.startObjectField("tcMap");
                 for (Map.Entry<String, String> entry : event.getContextMap().entrySet()) {
-                    tcMap.put(entry.getKey(), entry.getValue());
+                    json.put("logctx.map." + entry.getKey(), entry.getValue());
                 }
-                tcMap.end();
             }
             json.put("timestamp", DateTimeFormatter.ISO_INSTANT.format(Instant.ofEpochMilli(event.getTimeMillis())));
             return json.end().finish() + "\n";
