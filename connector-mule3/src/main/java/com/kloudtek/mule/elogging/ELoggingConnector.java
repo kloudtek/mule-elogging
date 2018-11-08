@@ -65,7 +65,7 @@ public class ELoggingConnector {
      */
     @Processor
     public Object logInbound(NestedProcessor nestedProcessor, MuleEvent muleEvent) throws Exception {
-        return processAndLog(nestedProcessor, muleEvent, RequestResponseLogMessage.Type.INBOUND);
+        return processAndLog(nestedProcessor, muleEvent);
     }
 
     /**

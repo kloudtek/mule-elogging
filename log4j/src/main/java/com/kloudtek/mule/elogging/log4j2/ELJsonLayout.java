@@ -10,6 +10,7 @@ import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.core.impl.ThrowableProxy;
 import org.apache.logging.log4j.core.layout.AbstractStringLayout;
+import org.apache.logging.log4j.message.MapMessage;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -59,7 +60,13 @@ public class ELJsonLayout extends AbstractStringLayout {
                     .put("loggerFqcn", event.getLoggerFqcn())
                     .put("threadName", event.getThreadName())
                     .put("level", event.getLevel().name());
-            json.put("message", event.getMessage().getFormattedMessage());
+            if( event.getMessage() instanceof MapMessage ) {
+                for (Map.Entry<String, String> entry : ((MapMessage) event.getMessage()).getData().entrySet()) {
+                    json.put(entry.getKey(),entry.getValue());
+                }
+            } else {
+                json.put("message", event.getMessage().getFormattedMessage());
+            }
             if (event.getThrownProxy() != null) {
                 if (getExtendedStackTraceAsStringAvailable) {
                     json.put("stacktrace", event.getThrownProxy().getExtendedStackTraceAsString());
@@ -91,5 +98,4 @@ public class ELJsonLayout extends AbstractStringLayout {
             throw new RuntimeException(e);
         }
     }
-
 }

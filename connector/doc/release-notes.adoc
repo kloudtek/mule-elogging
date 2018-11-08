@@ -1,0 +1,43 @@
+= <Connector_name> Connector Release Notes
+
+<Month Year>
+
+_MuleSoft Certified_
+
+[Describe this product in one brief sentence]
+
+== Version <version number> - <Release Date>
+
+This release fixes [explain what is fixed in general terms, or say This release is new].
+
+=== Version <version number> - Compatibility
+
+This connector supports these software versions:
+
+[%header%autowidth.spread] |=== |Software |Version |Anypoint Studio |<starting_version> and later |Mule |<starting_version> and later |JDK |<starting_version> and later |<target such as Salesforce> |<version(s)> |===
+
+=== Version <version number> - Features
+
+[bullet points for what's new in this release]
+
+=== Version <version number> - Fixed in This Release
+
+[bullet list -- list the description first. (jira number)] [For example:]
+
+● Xyz connector is not working when configured to use multiple xyz hosts. (SE-99999)
+
+=== Version <version number> - Known Issues
+
+[bullet list of issues that customers have reported that need to be fixed, but time/resources did not permit them in this release -- this helps Customer Support so that the same issues aren't reported over and over. Put a dot after each sentence.]
+
+[For example:]
+
+● Xyz connector throws xyzexception under some circumstances. (SE-999)
+
+=== Version <version number> - Required Libraries
+
+[List any libraries that are required for this product to work]
+
+== See Also
+
+* https://www.mulesoft.com/legal/versioning-back-support-policy#anypoint-connectors[Anypoint Connectors Support Policy] * [Link to the connector's user guide] * https://forums.mulesoft.com[MuleSoft Forum] * https://support.mulesoft.com[Contact MuleSoft Support]

@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Configuration packages="com.kloudtek.mule.elogging.log4j2">
     <Appenders>
-        <RollingFile name="file" fileName="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}elogging-example.log" 
-                 filePattern="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}elogging-example-%i.log">
-            <PatternLayout pattern="%d [%t] %-5p %c - %m%n" />
-            <SizeBasedTriggeringPolicy size="10 MB" />
-            <DefaultRolloverStrategy max="10"/>
-        </RollingFile>
         <RollingFile name="jsonFile" fileName="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}elogging-example.log.json"
                  filePattern="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}elogging-example-%i.log.json">
             <ELJsonLayout/>
@@ -15,17 +9,7 @@
         </RollingFile>
     </Appenders>
     <Loggers>
-		<AsyncLogger name="org.mule.module.http.internal.HttpMessageLogger" level="WARN"/>
-		<AsyncLogger name="com.mulesoft.mule.transport.jdbc" level="WARN"/>
-        <AsyncLogger name="org.apache.cxf" level="WARN"/>
-        <AsyncLogger name="org.apache" level="WARN"/>
-        <AsyncLogger name="org.springframework.beans.factory" level="WARN"/>
-        <AsyncLogger name="org.mule" level="INFO"/>
-        <AsyncLogger name="com.mulesoft" level="INFO"/>
-        <AsyncLogger name="org.jetel" level="WARN"/>
-        <AsyncLogger name="Tracking" level="WARN"/>
         <AsyncRoot level="INFO">
-            <AppenderRef ref="file" />
             <AppenderRef ref="jsonFile" />
         </AsyncRoot>
     </Loggers>

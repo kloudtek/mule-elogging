@@ -1,0 +1,10 @@
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:elogger="http://www.mulesoft.org/schema/mule/elogger"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+          http://www.mulesoft.org/schema/mule/elogger http://www.mulesoft.org/schema/mule/elogger/current/mule-elogger.xsd">
+
+    <flow name="testLog">
+        <elogger:log/>
+    </flow>
+</mule>

@@ -1,0 +1,110 @@
+= elogging Connector
+:imagesdir: ./_images
+
+_CONNECTOR_SUPPORT_CATEGORY_
+
+The elogger connector allows to log all flow information ( payload, variables, attributes ) as a structured log message.
+This will normally be used in conjunction with the log4j json layout in order to generate json logs
+
+== Prerequisites
+
+This document assumes that you are familiar with Mule, Anypoint Connectors, Anypoint Studio, Mule flows, and Mule Global Elements. See the Release Notes for compatibility information listed in the See Also section of this document.
+
+== What's New in this Connector
+
+Version 2.0 now supports mule 4.1+ and drops support for mule 3.x
+
+== Add JSON logging support
+
+If you wish to use this library to do json logging (which will typically be the case), you need
+to include in you pom.xml the dependency for our log4j layout
+
+[source,xml]
+----
+<dependency>
+    <groupId>com.kloudtek.mule.elogging</groupId>
+    <artifactId>mule-elogging-log4j2</artifactId>
+    <version>LATEST_VERSION</version>
+</dependency>
+----
+
+Once you've done that, you will need to add the package "com.kloudtek.mule.elogging.log4j2" to you configuration,
+which will allow you to use the ELJsonLayout.
+
+example:
+
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration packages="com.kloudtek.mule.elogging.log4j2">
+    <Appenders>
+        <RollingFile name="jsonFile" fileName="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}elogging-example.log.json"
+                 filePattern="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}elogging-example-%i.log.json">
+            <ELJsonLayout/>
+            <SizeBasedTriggeringPolicy size="10 MB"/>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <AsyncRoot level="INFO">
+            <AppenderRef ref="jsonFile" />
+        </AsyncRoot>
+    </Loggers>
+</Configuration>
+----
+
+
+== To Connect in Design Center
+
+[List steps to specify a trigger and the connector]
+
+- Show screenshots for the trigger setup and for configuring the connector.
+
+
+=== Test the Connector
+
+[List how to test that the connector works via Design Center]
+
+== To Install this Connector in Anypoint Studio 7
+
+. In Anypoint Studio 7, click Add Module and specify the name of the connector.
+. Click Add to add the connector to your project. [List any other steps necessary to install the connector]
+
+When Studio has an update, a message displays in the lower right corner, which you can click to install the update.
+
+== To Create a Mule Project in Anypoint Studio 7
+
+[screenshot of flow, screenshot of configuration screen(s), table of field descriptions]
+
+=== To Create a Mule Project Using XML
+
+[source,xml]
+----
+FULL_XML_FLOW
+----
+
+=== To Run and Test a Mule Flow
+
+Explain how to run the application and test the connector.
+
+== Example: elogger
+
+This example demonstrates the use of elogger connector.
+
+To build and run this demo project you need:
+
+* Anypoint Studio with at least Mule 4.1 Runtime. 
+
+=== To Configure this Example
+
+[Explain how to configure this example. Don't repeat screenshots from the configuration section above.]
+
+=== To Test the Example
+
+[Explain how to test that the example works]
+
+=== About the XML Flow
+
+[source,xml]
+---- 
+[Complete xml flow] 
+----
