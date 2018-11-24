@@ -12,18 +12,21 @@ import org.apache.logging.log4j.core.impl.ThrowableProxy;
 import org.apache.logging.log4j.core.layout.AbstractStringLayout;
 import org.apache.logging.log4j.message.MapMessage;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 @Plugin(name = "ELJsonLayout", category = "Core", elementType = "layout", printObject = true)
 public class ELJsonLayout extends AbstractStringLayout {
+    public static final String RAWJSON_MARKER = "_$_rawjson_$_";
+    public static final int RAWJSON_MARK_LEN = RAWJSON_MARKER.length();
     private static boolean prettyPrint;
     private static final boolean getExtendedStackTraceAsStringAvailable;
 
@@ -48,6 +51,7 @@ public class ELJsonLayout extends AbstractStringLayout {
         return new ELJsonLayout(charset);
     }
 
+    @SuppressWarnings("unchecked")
     public String toSerializable(LogEvent event) {
         try {
             JSON jbase = JSON.std;
@@ -60,9 +64,35 @@ public class ELJsonLayout extends AbstractStringLayout {
                     .put("loggerFqcn", event.getLoggerFqcn())
                     .put("threadName", event.getThreadName())
                     .put("level", event.getLevel().name());
-            if( event.getMessage() instanceof MapMessage ) {
-                for (Map.Entry<String, String> entry : ((MapMessage) event.getMessage()).getData().entrySet()) {
-                    json.put(entry.getKey(),entry.getValue());
+            if (event.getMessage() instanceof MapMessage) {
+                Map data = ((MapMessage) event.getMessage()).getData();
+                ArrayList<KeyValue> list = new ArrayList<>();
+                data.forEach((k, v) -> list.add(new KeyValue(k.toString(), v != null ? v.toString() : null)));
+                while (!list.isEmpty()) {
+                    KeyValue keyValue = list.remove(0);
+                    String key = keyValue.key;
+                    String value = keyValue.value;
+                    if (!key.endsWith(RAWJSON_MARKER)) {
+                        boolean skip = false;
+                        if (data.getOrDefault(key + RAWJSON_MARKER, "false").equals("true")) {
+                            try {
+                                if (key.endsWith(".content")) {
+                                    key = key.substring(0, key.length() - 8);
+                                    remove(list, key + ".media-type");
+                                }
+                                Object jsonObj = jbase.anyFrom(value);
+                                if (jsonObj != null) {
+                                    json.putObject(key, jsonObj);
+                                    skip = true;
+                                }
+                            } catch (Throwable e) {
+                                //
+                            }
+                        }
+                        if (!skip) {
+                            json.put(key, value);
+                        }
+                    }
                 }
             } else {
                 json.put("message", event.getMessage().getFormattedMessage());
@@ -94,8 +124,27 @@ public class ELJsonLayout extends AbstractStringLayout {
             }
             json.put("timestamp", DateTimeFormatter.ISO_INSTANT.format(Instant.ofEpochMilli(event.getTimeMillis())));
             return json.end().finish() + "\n";
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (Throwable e) {
+            return "ERROR: " + e.getMessage() + " " + Arrays.toString(e.getStackTrace());
+        }
+    }
+
+    private void remove(ArrayList<KeyValue> list, String key) {
+        for (KeyValue keyValue : list) {
+            if (keyValue.key.equals(key)) {
+                list.remove(keyValue);
+                return;
+            }
+        }
+    }
+
+    class KeyValue {
+        String key;
+        String value;
+
+        public KeyValue(String key, String value) {
+            this.key = key;
+            this.value = value;
         }
     }
 }

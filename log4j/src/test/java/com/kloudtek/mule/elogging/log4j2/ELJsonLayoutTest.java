@@ -36,11 +36,11 @@ class ELJsonLayoutTest {
             LoggerContext ctx = buildJson();
             HashMap<String,String> stuff = new HashMap<>();
             stuff.put("foo","bar");
-            stuff.put("a.b.c","2345");
+            stuff.put("a.b.c","2345\n\"--~");
             MapMessage mapMessage = new MapMessage(stuff);
             ctx.getLogger("Hello").log(Level.INFO, mapMessage);
         } );
-        Assertions.assertEquals("{\"loggerName\":\"Hello\",\"loggerFqcn\":\"org.apache.logging.log4j.spi.AbstractLogger\",\"threadName\":\"main\",\"level\":\"INFO\",\"a.b.c\":\"2345\",\"foo\":\"bar\",\"timestamp\":\"[TIMESTAMP]\"}\n",logEntry);
+        Assertions.assertEquals("{\"loggerName\":\"Hello\",\"loggerFqcn\":\"org.apache.logging.log4j.spi.AbstractLogger\",\"threadName\":\"main\",\"level\":\"INFO\",\"a.b.c\":\"2345\\n\\\"--~\",\"foo\":\"bar\",\"timestamp\":\"[TIMESTAMP]\"}\n",logEntry);
     }
 
     private LoggerContext buildJson() {
