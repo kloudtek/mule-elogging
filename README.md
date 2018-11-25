@@ -16,6 +16,8 @@ mule runtime framework, from other connectors) losing all metadata other than th
 
 Also the logger itself isn't available as a scope, which makes it harder to properly record responses in error scenarios
 
+Additionally this connector is designed to never cause the flow to fail, unlike json-logger which can cause various problems.
+
 ## The solution
 
 This framework is designed to solve all those issues (and more) by providing the following capabilities:

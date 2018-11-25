@@ -1,10 +1,6 @@
 package org.mule.extension.internal;
 
-//import org.apache.logging.log4j.Level;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
-//import org.apache.logging.log4j.message.MapMessage;
-
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.message.MapMessage;
@@ -14,11 +10,14 @@ import org.mule.runtime.api.metadata.DataType;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.api.transformation.TransformationService;
+import org.mule.runtime.core.api.el.ExpressionManager;
 import org.mule.runtime.core.api.util.Base64;
 import org.mule.runtime.core.api.util.IOUtils;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
+import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.parameter.CorrelationInfo;
+import org.mule.runtime.extension.api.runtime.parameter.ParameterResolver;
 import org.mule.runtime.extension.api.runtime.process.CompletionCallback;
 import org.mule.runtime.extension.api.runtime.route.Chain;
 import org.slf4j.LoggerFactory;
@@ -43,31 +42,33 @@ public class EloggerOperations {
 
     @Inject
     private TransformationService transformationService;
+    @Inject
+    private ExpressionManager expressionManager;
 
     @Parameter
-    @Optional(defaultValue = "payload")
+    @Optional(defaultValue = "elogger")
     private String category;
-
-    @Parameter
-    @Optional(defaultValue = "DEBUG")
-    private Severity severity;
 
     /**
      * Log flow state data (payload, attributes, variables) at a given point in time
      */
-    public void logState(@Optional(defaultValue = "#[payload]") TypedValue<InputStream> payload,
-                         @Optional(defaultValue = "#[output application/json --- attributes]") TypedValue<Object> attributes,
+    public void logState(@Optional(defaultValue = "#[payload]") ParameterResolver<TypedValue<InputStream>> payload,
+                         @Optional(defaultValue = "#[output application/json --- attributes]") ParameterResolver<TypedValue<Object>> attributes,
+                         @Optional(defaultValue = "#[output application/json --- vars]") ParameterResolver<TypedValue<Object>> variables,
+                         @Optional(defaultValue = "DEBUG") ParameterResolver<Severity> severity,
                          CompletionCallback<Void, Void> callback,
                          CorrelationInfo correlationInfo) {
         Logger logger = getLogger(category);
         try {
-            if (logger.isEnabled(severity.getLevel())) {
+            Level logLevel = severity.resolve().getLevel();
+            if (logger.isEnabled(logLevel)) {
                 HashMap<String, Object> data = new HashMap<>();
                 addCorrelationInfo(data, correlationInfo);
-                addStreamToMap("request.payload", data, payload);
-                addObjToMap("request.attributes", data, attributes);
+                addStreamToMap("request.payload", data, payload.resolve());
+                addObjToMap("request.attributes", data, attributes.resolve());
+                addObjToMap("request.variables", data, variables.resolve());
                 MapMessage mapMessage = new MapMessage(data);
-                logger.log(severity.getLevel(), mapMessage);
+                logger.log(logLevel, mapMessage);
             }
         } catch (Throwable e) {
             logger.error("An error occurred while logging payload: " + e.getMessage(), e);
@@ -75,33 +76,63 @@ public class EloggerOperations {
         callback.success(null);
     }
 
-    public void logScope(@Optional(defaultValue = "#[payload]") TypedValue<InputStream> payload,
-                         @Optional(defaultValue = "#[output application/json --- attributes]") TypedValue<Object> attributes,
-                         Chain operations,
-                         CompletionCallback<Object, Object> callback,
-                         CorrelationInfo correlationInfo) {
+    /**
+     * Scope that logs both incoming and outgoing state
+     *
+     * @param payload                         Incoming payload
+     * @param attributes                      Incoming attributes
+     * @param convertResponseAttributesToJson Indicates if response attributes should be converted to raw json
+     * @param operations                      Operations
+     * @param callback                        Callback
+     * @param correlationInfo                 correlation info
+     */
+    public void logRequestResponseState(@Optional(defaultValue = "#[payload]") ParameterResolver<TypedValue<InputStream>> payload,
+                                        @Optional(defaultValue = "#[output application/json --- attributes]") ParameterResolver<TypedValue<Object>> attributes,
+                                        @Optional(defaultValue = "true") boolean convertResponseAttributesToJson,
+                                        @Optional(defaultValue = "DEBUG") ParameterResolver<Severity> severity,
+                                        @Optional(defaultValue = "DEBUG") ParameterResolver<Severity> severityOnErrorResolver,
+                                        Chain operations,
+                                        CompletionCallback<Object, Object> callback,
+                                        CorrelationInfo correlationInfo) {
         Logger logger = getLogger(category);
-        try {
-            if (logger.isEnabled(severity.getLevel())) {
-                HashMap<String, Object> data = new HashMap<>();
+        Level logLevel = severity.resolve().getLevel();
+        if (logger.isEnabled(logLevel)) {
+            final HashMap<String, Object> data = new HashMap<>();
+            try {
                 addCorrelationInfo(data, correlationInfo);
-                addStreamToMap("request.payload", data, payload);
-                addObjToMap("request.attributes", data, attributes, true);
-                long start = System.currentTimeMillis();
-                operations.process(result -> {
-                    addDuration(data, start);
-                    addObjToMap("response.payload", data, result.getOutput(), result.getMediaType());
-                    logger.log(severity.getLevel(), new MapMessage(data));
-                    callback.success(result);
-                }, (throwable, result) -> {
-                    addDuration(data, start);
-                });
-            } else {
-                operations.process(callback::success, (throwable, result) -> callback.error(throwable));
+                addStreamToMap("request.payload", data, payload.resolve());
+                addObjToMap("request.attributes", data, attributes.resolve());
+            } catch (Exception e) {
+                logger.warn("Failed to generate log state: " + e.getMessage(), e);
             }
-        } catch (Throwable e) {
-            logger.error("An error occurred while logging payload: " + e.getMessage(), e);
+            long start = System.currentTimeMillis();
+            operations.process(result -> {
+                try {
+                    addResponseState(data, start, result, convertResponseAttributesToJson);
+                    logger.log(logLevel, new MapMessage(data));
+                } catch (Exception e) {
+                    logger.warn("Failed to generate log state: " + e.getMessage(), e);
+                }
+                callback.success(result);
+            }, (throwable, result) -> {
+                try {
+                    addResponseState(data, start, result, convertResponseAttributesToJson);
+                    addObjToMap("throwable", data, throwable, DataType.OBJECT, true, convertResponseAttributesToJson);
+                    logger.log(severityOnErrorResolver.resolve().getLevel(), new MapMessage(data));
+                } catch (Exception e) {
+                    logger.warn("Failed to generate log state: " + e.getMessage(), e);
+                }
+                callback.error(throwable);
+            });
+        } else {
+            operations.process(callback::success, (throwable, result) -> callback.error(throwable));
         }
+    }
+
+    private void addResponseState(HashMap<String, Object> data, long start, Result result, boolean convertResponseAttributesToJson) {
+        addDuration(data, start);
+        addObjToMap("response.payload", data, result.getOutput(), result.getMediaType(), false, false);
+        addObjToMap("response.attributes", data, result.getAttributes().orElseGet(null), result.getAttributesMediaType(), true, convertResponseAttributesToJson);
     }
 
     private void addCorrelationInfo(HashMap<String, Object> data, CorrelationInfo correlationInfo) {
@@ -121,28 +152,25 @@ public class EloggerOperations {
     }
 
     private void addObjToMap(String key, HashMap<String, Object> data, TypedValue<Object> attributes) {
-        addObjToMap(key, data, attributes, false);
-    }
-
-    private void addObjToMap(String key, HashMap<String, Object> data, TypedValue<Object> attributes, boolean supportRawJson) {
-        addObjToMap(key, data, attributes.getValue(), attributes.getDataType(), supportRawJson);
+        addObjToMap(key, data, attributes.getValue(), attributes.getDataType(), true, true);
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    private void addObjToMap(String key, HashMap<String, Object> data, Object obj, java.util.Optional<MediaType> mediaTypeOptional) {
+    private void addObjToMap(String key, HashMap<String, Object> data, Object obj,
+                             java.util.Optional<MediaType> mediaTypeOptional, boolean supportRawJson, boolean convertResponseAttributesToJson) {
         if (mediaTypeOptional.isPresent()) {
-            addObjToMap(key, data, obj, DataType.builder().mediaType(mediaTypeOptional.get()).build());
+            addObjToMap(key, data, obj, DataType.builder().mediaType(mediaTypeOptional.get()).build(), supportRawJson, convertResponseAttributesToJson);
         } else {
-            addObjToMap(key, data, obj, DataType.fromObject(obj));
+            addObjToMap(key, data, obj, DataType.fromObject(obj), supportRawJson, convertResponseAttributesToJson);
         }
     }
 
-
     private void addObjToMap(String key, HashMap<String, Object> data, Object obj, DataType dataType) {
-        addObjToMap(key, data, obj, dataType, false);
+        addObjToMap(key, data, obj, dataType, false, true);
     }
 
-    private void addObjToMap(String key, HashMap<String, Object> data, Object obj, DataType dataType, boolean supportRawJson) {
+    private void addObjToMap(String key, HashMap<String, Object> data, Object obj, DataType dataType, boolean supportRawJson, boolean convertResponseAttributesToJson) {
+        // TODO JSON CONVERT
         String attrStr = null;
         if (obj != null) {
             if (obj instanceof String) {
@@ -162,9 +190,7 @@ public class EloggerOperations {
             }
         }
         data.put(key, attrStr);
-        if (supportRawJson && dataType.equals(DataType.JSON_STRING)) {
-            data.put(key+RAWJSON_MARKER,"true");
-        }
+        addRawJsonTag(key, data, dataType, supportRawJson);
     }
 
     private void addStreamToMap(String prefix, HashMap<String, Object> data, TypedValue<InputStream> payload) {
@@ -193,9 +219,7 @@ public class EloggerOperations {
         String key = prefix + ".content";
         data.put(key, payloadValue);
         data.put(prefix + ".media-type", payloadType);
-        if (supportRawJson && ( dataType.isCompatibleWith(DataType.JSON_STRING) || dataType.getMediaType().toRfcString().startsWith("application/json") ) ) {
-            data.put(key+RAWJSON_MARKER,"true");
-        }
+        addRawJsonTag(key, data, dataType, supportRawJson);
     }
 
     private boolean isText(MediaType mediaType) {
@@ -208,4 +232,9 @@ public class EloggerOperations {
         return LogManager.getLogger(category);
     }
 
+    private void addRawJsonTag(String key, HashMap<String, Object> data, DataType dataType, boolean supportRawJson) {
+        if (supportRawJson && ((dataType.isCompatibleWith(DataType.JSON_STRING) || dataType.getMediaType().toRfcString().startsWith("application/json")))) {
+            data.put(key + RAWJSON_MARKER, "true");
+        }
+    }
 }
