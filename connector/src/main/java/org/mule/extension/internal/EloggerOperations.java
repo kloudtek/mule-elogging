@@ -5,6 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.message.MapMessage;
 import org.mule.extension.api.Severity;
+import org.mule.runtime.api.el.BindingContext;
 import org.mule.runtime.api.message.ItemSequenceInfo;
 import org.mule.runtime.api.metadata.DataType;
 import org.mule.runtime.api.metadata.MediaType;
@@ -170,9 +171,15 @@ public class EloggerOperations {
     }
 
     private void addObjToMap(String key, HashMap<String, Object> data, Object obj, DataType dataType, boolean supportRawJson, boolean convertResponseAttributesToJson) {
-        // TODO JSON CONVERT
         String attrStr = null;
         if (obj != null) {
+            if( convertResponseAttributesToJson ) {
+                TypedValue<?> converted = expressionManager.evaluate("output application/json --- data", BindingContext.builder()
+                        .addBinding("data", new TypedValue(obj, dataType))
+                        .build());
+                obj = converted.getValue();
+                dataType = converted.getDataType();
+            }
             if (obj instanceof String) {
                 attrStr = obj.toString();
             } else if (obj instanceof InputStream) {
