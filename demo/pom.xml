@@ -40,8 +40,8 @@
                             <goal>cdeploy</goal>
                         </goals>
                         <configuration>
-                            <username>ymenager-mulesoft</username>
-                            <password>DqqWzl1HEO9[kU</password>
+                            <username>${anypoint.username}</username>
+                            <password>${anypoint.password}</password>
                             <org>mulesoft</org>
                             <env>Sandbox</env>
                         </configuration>
