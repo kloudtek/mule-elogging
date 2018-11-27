@@ -1,5 +1,8 @@
 package org.mule.extension.internal;
 
+import com.fasterxml.jackson.jr.ob.JSON;
+import com.fasterxml.jackson.jr.ob.JSONComposer;
+import com.fasterxml.jackson.jr.ob.comp.ObjectComposer;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,11 +24,12 @@ import org.mule.runtime.extension.api.runtime.parameter.CorrelationInfo;
 import org.mule.runtime.extension.api.runtime.parameter.ParameterResolver;
 import org.mule.runtime.extension.api.runtime.process.CompletionCallback;
 import org.mule.runtime.extension.api.runtime.route.Chain;
-import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,7 +42,6 @@ import static com.kloudtek.mule.elogging.log4j2.ELJsonLayout.RAWJSON_MARKER;
  */
 @SuppressWarnings("unchecked")
 public class EloggerOperations {
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(EloggerOperations.class);
     private HashSet<String> textTypes = new HashSet<>(Arrays.asList("application/json", "application/xml"));
 
     @Inject
@@ -89,19 +92,21 @@ public class EloggerOperations {
      */
     public void logRequestResponseState(@Optional(defaultValue = "#[payload]") ParameterResolver<TypedValue<InputStream>> payload,
                                         @Optional(defaultValue = "#[output application/json --- attributes]") ParameterResolver<TypedValue<Object>> attributes,
+                                        @Optional(defaultValue = "#[output application/json --- vars]") ParameterResolver<TypedValue<Object>> variables,
                                         @Optional(defaultValue = "true") boolean convertResponseAttributesToJson,
                                         @Optional(defaultValue = "DEBUG") ParameterResolver<Severity> severity,
                                         @Optional(defaultValue = "DEBUG") ParameterResolver<Severity> severityOnErrorResolver,
                                         Chain operations,
                                         CompletionCallback<Object, Object> callback,
                                         CorrelationInfo correlationInfo) {
-        Logger logger = getLogger(category);
+        final Logger logger = getLogger(category);
         Level logLevel = severity.resolve().getLevel();
         if (logger.isEnabled(logLevel)) {
             final HashMap<String, Object> data = new HashMap<>();
             try {
                 addCorrelationInfo(data, correlationInfo);
                 addStreamToMap("request.payload", data, payload.resolve());
+                addObjToMap("request.variables", data, variables.resolve());
                 addObjToMap("request.attributes", data, attributes.resolve());
             } catch (Exception e) {
                 logger.warn("Failed to generate log state: " + e.getMessage(), e);
@@ -118,7 +123,8 @@ public class EloggerOperations {
             }, (throwable, result) -> {
                 try {
                     addResponseState(data, start, result, convertResponseAttributesToJson);
-                    addObjToMap("throwable", data, throwable, DataType.OBJECT, true, convertResponseAttributesToJson);
+                    data.put("throwable.message",throwable.getMessage());
+                    data.put("throwable.stacktrace",toString(throwable));
                     logger.log(severityOnErrorResolver.resolve().getLevel(), new MapMessage(data));
                 } catch (Exception e) {
                     logger.warn("Failed to generate log state: " + e.getMessage(), e);
@@ -173,23 +179,36 @@ public class EloggerOperations {
     private void addObjToMap(String key, HashMap<String, Object> data, Object obj, DataType dataType, boolean supportRawJson, boolean convertResponseAttributesToJson) {
         String attrStr = null;
         if (obj != null) {
-            if( convertResponseAttributesToJson ) {
-                TypedValue<?> converted = expressionManager.evaluate("output application/json --- data", BindingContext.builder()
-                        .addBinding("data", new TypedValue(obj, dataType))
-                        .build());
-                obj = converted.getValue();
-                dataType = converted.getDataType();
+            if (convertResponseAttributesToJson && !(obj instanceof Exception)) {
+                try {
+                    TypedValue<?> converted = expressionManager.evaluate("output application/json --- data", BindingContext.builder()
+                            .addBinding("data", new TypedValue(obj, dataType))
+                            .build());
+                    obj = converted.getValue();
+                    dataType = converted.getDataType();
+                } catch (Throwable e) {
+                    // failed to convert
+                }
             }
             if (obj instanceof String) {
                 attrStr = obj.toString();
+            } else if (obj instanceof Throwable) {
+                try {
+                    ObjectComposer<JSONComposer<String>> c = JSON.std.composeString().startObject();
+                    c.put("message", ((Throwable) obj).getMessage());
+                    c.put("stacktrace", toString((Throwable) obj));
+                    attrStr = c.end().finish();
+                } catch (IOException e) {
+                    attrStr = toString((Throwable) obj);
+                }
             } else if (obj instanceof InputStream) {
                 addStreamToMap(key, data, (InputStream) obj, dataType, supportRawJson);
                 return;
             } else {
                 try {
                     attrStr = transformationService.transform(obj, dataType, DataType.JSON_STRING).toString();
-                } catch (Exception e) {
-                    logger.info(e.getMessage(), e);
+                } catch (Throwable e) {
+                    // failed to convert
                 }
                 if (attrStr == null) {
                     attrStr = obj.toString();
@@ -243,5 +262,13 @@ public class EloggerOperations {
         if (supportRawJson && ((dataType.isCompatibleWith(DataType.JSON_STRING) || dataType.getMediaType().toRfcString().startsWith("application/json")))) {
             data.put(key + RAWJSON_MARKER, "true");
         }
+    }
+
+    private static String toString(Throwable e) {
+        StringWriter buf = new StringWriter();
+        try (PrintWriter w = new PrintWriter(buf)) {
+            e.printStackTrace(w);
+        }
+        return buf.toString();
     }
 }

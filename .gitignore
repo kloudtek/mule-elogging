@@ -4,6 +4,7 @@
 .idea
 *.iml
 
+
 ### Maven template
 target/
 pom.xml.tag
@@ -97,3 +98,22 @@ local.properties
 .scala_dependencies
 .worksheet
 
+# ------------------------------------------------------------------------------ #
+# Java defaults (https://github.com/github/gitignore/blob/master/Java.gitignore) #
+# ------------------------------------------------------------------------------ #
+*.class
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+.project
+.classpath
+
+# --------------- #
+# Studio-specific #
+# --------------- #
+.mule
+.mule/**/*
+velocity.log
