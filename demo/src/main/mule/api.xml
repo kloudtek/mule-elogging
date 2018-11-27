@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:oauth="http://www.mulesoft.org/schema/mule/oauth" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+<mule xmlns:elogger="http://www.mulesoft.org/schema/mule/elogger"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:oauth="http://www.mulesoft.org/schema/mule/oauth" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
 http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd
-http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd
+http://www.mulesoft.org/schema/mule/elogger http://www.mulesoft.org/schema/mule/elogger/current/mule-elogger.xsd">
     <http:listener-config name="api-httpListenerConfig">
-        <http:listener-connection host="0.0.0.0" port="8081" />
+        <http:listener-connection host="0.0.0.0" port="8888" />
     </http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="3a7eff84-865c-4c75-8ccf-9210b01aac37">
+		<http:request-connection protocol="HTTPS" host="jsonplaceholder.typicode.com" port="443" />
+	</http:request-config>
     <apikit:config name="api-config" raml="api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
-	<api-gateway:autodiscovery apiId="${api.id}" doc:name="API Autodiscovery" doc:id="7e9c6318-a04d-44dd-aaa5-dc0d11cb9fbb" flowRef="api-main" />
 	<flow name="api-main">
         <http:listener config-ref="api-httpListenerConfig" path="/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
@@ -110,7 +114,10 @@ output application/json
         <apikit:console config-ref="api-config" />
         <error-handler>
             <on-error-propagate type="APIKIT:NOT_FOUND">
-                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
                     <ee:message>
                         <ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -125,11 +132,20 @@ output application/json
         </error-handler>
     </flow>
     <flow name="get:\test:api-config">
-        <logger level="INFO" message="get:\test:api-config" />
-		<flow-ref doc:name="Flow Reference" doc:id="44249c8d-3e66-48df-a77e-ce2aa37cdd66" target="mydata" targetValue="#[payload.id]"/>
-		<http:request method="GET" doc:name="Request" doc:id="985df1eb-e37e-49ad-8532-b7cbb9040df7" />
+		<http:request method="GET" doc:name="Request" doc:id="0310db7d-a9b0-4769-92a9-f39c81b84aa2" config-ref="HTTP_Request_configuration" path="/todos/1"/>
+		<logger level="INFO" doc:name="Logger" doc:id="7f432469-6d7f-482d-936c-c9d1275b4e1a" message="#[output application/json --- attributes]" category="WTF"/>
+		<elogger:log-state doc:name="Log state" doc:id="9beafc67-8d1d-4456-b4d1-acfbcb0620cb" severity="INFO"/>
     </flow>
-	<flow name="apiFlow" doc:id="8118cbf4-b68c-468b-94c2-5c4c92ff4f37" >
-		<oauth:retrieve-refresh-token doc:id="06de7cbe-7375-450b-a80c-8828b5819ca3" />
-	</flow>
+    <flow name="get:\testscope:api-config">
+		<set-payload value="foobarbaz" doc:name="Set Payload" doc:id="a2106e6e-77aa-499d-8ad0-77b4b08a900e" mimeType="text/flatfile" />
+		<elogger:log-request-response-state doc:name="Log scope" doc:id="8ceb3ce9-638d-4685-be95-1ca2fdd4da20" severity="INFO">
+			<http:request method="GET" doc:name="Request" doc:id="58af03f8-8d6c-47c9-b2ca-2fd47bd7d8c7" config-ref="HTTP_Request_configuration" path="/todos/1" />
+		</elogger:log-request-response-state>
+    </flow>
+    <flow name="get:\testerror:api-config">
+		<elogger:log-request-response-state doc:name="Log scope" doc:id="f6dea0a5-efdb-4f07-8560-43e1cae8b496" severity="INFO" severityOnErrorResolver="ERROR">
+			<http:request method="GET" doc:name="Request" doc:id="c4e707f0-764b-478f-841b-65793668d36d" config-ref="HTTP_Request_configuration" path="/todos/1" />
+			<raise-error doc:name="Raise error" doc:id="118605d3-fbb6-4b7d-8ae2-14638c441188" type="CONNECTIVITY"/>
+		</elogger:log-request-response-state>
+    </flow>
 </mule>

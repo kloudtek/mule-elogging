@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Configuration>
+<Configuration packages="com.kloudtek.mule.elogging.log4j2">
 
     <!--These are some of the loggers you can enable. 
         There are several more you can find in the documentation. 
@@ -9,9 +9,9 @@
         see them in the mule_ee.log file. -->
 
     <Appenders>
-        <RollingFile name="file" fileName="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}demo.log" 
-                 filePattern="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}demo-%i.log">
-            <PatternLayout pattern="%-5p %d [%t] [event: %X{correlationId}] %c: %m%n" />
+        <RollingFile name="file" fileName="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}mule-elogging-demo.log" 
+                 filePattern="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}mule-elogging-demo-%i.log">
+            <ELJsonLayout />
             <SizeBasedTriggeringPolicy size="10 MB" />
             <DefaultRolloverStrategy max="10"/>
         </RollingFile>
