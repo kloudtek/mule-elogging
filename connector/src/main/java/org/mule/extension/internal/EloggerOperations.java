@@ -35,13 +35,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import static com.kloudtek.mule.elogging.log4j2.ELJsonLayout.RAWJSON_MARKER;
-
 /**
  * ELogger operations
  */
 @SuppressWarnings("unchecked")
 public class EloggerOperations {
+    public static final String RAWJSON_MARKER = "_$_rawjson_$_";
     private HashSet<String> textTypes = new HashSet<>(Arrays.asList("application/json", "application/xml"));
 
     @Inject
