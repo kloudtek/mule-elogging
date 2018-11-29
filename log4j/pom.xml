@@ -6,7 +6,7 @@
 
     <groupId>com.kloudtek.mule.elogging</groupId>
     <artifactId>mule-elogging-log4j2</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>0.10.2</version>
     <name>Mule ELogging Log4j layout</name>
     <url>https://github.com/Kloudtek/mule-elogging</url>
     <description>Tools to make mule logging useful (include inbound/outbound payload logging connectors, mule-friendly
