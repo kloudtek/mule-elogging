@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.kloudtek.mule.elogging</groupId>
+    <groupId>com.kloudtek.mule-elogging</groupId>
     <artifactId>mule-elogging-log4j2</artifactId>
     <version>2.0.0-SNAPSHOT</version>
     <name>Mule ELogging Log4j layout</name>
