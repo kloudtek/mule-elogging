@@ -10,7 +10,7 @@
     <description>Provides extensive logging capabilities to mule</description>
 
     <modules>
-        <!--<module>log4j</module>-->
+        <module>log4j</module>
         <module>connector</module>
     </modules>
 
