@@ -59,12 +59,6 @@
             <version>5.0.2</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.mule</groupId>
-            <artifactId>mule-core</artifactId>
-            <version>3.9.0</version>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
 
     <repositories>
